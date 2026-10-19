@@ -239,7 +239,7 @@ function Hero() {
           <Magnet>
             <img
               className="portrait"
-              src="./portrait-original.jpg"
+              src="./portrait-transparent.png"
               alt="Avatar 3D pilihan M. Dicky Andrean"
               fetchPriority="high"
               width="850"
