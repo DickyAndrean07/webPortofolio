@@ -1283,6 +1283,9 @@ main,
 }
 .hero-heading {
   background: linear-gradient(180deg, #7c7777 0%, #d9c8bb 82%, #a98572 100%);
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
 }
 .hero h1 {
   font-size: clamp(48px, 13.2vw, 238px);
