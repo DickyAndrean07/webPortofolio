@@ -1263,3 +1263,87 @@ a:focus-visible {
     top: auto !important;
   }
 }
+
+/* Warm visual system: derived from the portrait's charcoal hair and soft skin highlights. */
+:root {
+  --warm-ink: #151112;
+  --warm-charcoal: #211a1a;
+  --warm-sand: #d8c3b0;
+  --warm-muted: #a99a91;
+  --warm-glow: #9a6245;
+}
+body,
+#root,
+main,
+.hero,
+.marquee,
+.projects,
+.contact {
+  background: var(--warm-ink);
+}
+.hero-heading {
+  background: linear-gradient(180deg, #7c7777 0%, #d9c8bb 82%, #a98572 100%);
+}
+.hero h1 {
+  font-size: clamp(48px, 13.2vw, 238px);
+  letter-spacing: -0.04em;
+}
+.portrait-wrap {
+  width: min(54vw, 680px);
+  margin-left: max(-27vw, -340px);
+  top: 25%;
+}
+.portrait {
+  filter: drop-shadow(0 32px 34px #050303c9);
+}
+.portrait-glow {
+  background: #9a6245;
+  opacity: 0.24;
+}
+.hero-bottom p span,
+.portrait-label,
+.hero-note,
+.nav-location,
+.marquee-label,
+.visual-note {
+  color: var(--warm-muted);
+}
+.contact-button {
+  background: linear-gradient(
+    123deg,
+    #261316 0%,
+    #8e4d4e 42%,
+    #b87955 76%,
+    #d2ae85 100%
+  );
+  box-shadow:
+    0 4px 4px #6d393540,
+    4px 4px 12px #8d5048 inset;
+}
+.scroll-progress {
+  background: #d1a785;
+}
+::selection {
+  background: #b88770;
+  color: var(--warm-ink);
+}
+@media (max-width: 1023px) {
+  .portrait-wrap {
+    width: 62vw;
+    margin-left: -31vw;
+    top: 28%;
+  }
+}
+@media (max-width: 639px) {
+  .hero h1 {
+    font-size: 13vw;
+  }
+  .portrait-wrap {
+    width: 94vw;
+    margin-left: -47vw;
+    top: 24%;
+  }
+  .hero-bottom p {
+    font-size: 12px;
+  }
+}
