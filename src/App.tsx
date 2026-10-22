@@ -208,6 +208,7 @@ function Hero() {
   });
   const reduced = useReducedMotion();
   const y = useTransform(scrollYProgress, [0, 1], [0, 110]);
+
   return (
     <section ref={ref} className="hero" id="top">
       <FadeIn y={-20}>
@@ -235,16 +236,50 @@ function Hero() {
       </FadeIn>
       <motion.div className="portrait-wrap" style={{ y: reduced ? 0 : y }}>
         <FadeIn delay={0.4}>
-          <div className="portrait-glow" />
+          <motion.div
+            className="portrait-glow"
+            animate={
+              reduced
+                ? undefined
+                : {
+                    scale: [0.92, 1.18, 0.92],
+                    opacity: [0.2, 0.44, 0.2],
+                  }
+            }
+            transition={{
+              duration: 2.4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
           <Magnet>
-            <img
-              className="portrait"
-              src="./portrait-transparent.png"
-              alt="Avatar 3D pilihan M. Dicky Andrean"
-              fetchPriority="high"
-              width="850"
-              height="850"
-            />
+            <motion.div
+              className="portrait-interactive"
+              animate={
+                reduced
+                  ? undefined
+                  : {
+                      y: [-12, 12, -12],
+                      rotate: [-1.2, 1.2, -1.2],
+                    }
+              }
+              transition={{
+                duration: 2.4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <img
+                className="portrait"
+                src="./portrait-transparent.png"
+                alt="Avatar 3D pilihan M. Dicky Andrean"
+                fetchPriority="high"
+                width="850"
+                height="850"
+              />
+            </motion.div>
           </Magnet>
         </FadeIn>
         <span className="portrait-label">A CURIOUS MIND, ALWAYS BUILDING.</span>
