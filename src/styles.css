@@ -888,10 +888,10 @@ a:focus-visible {
     font-size: clamp(38px, min(12.8vw, 14svh), 140px);
   }
   .portrait-wrap {
-    --portrait-w: min(60vw, 48svh, 460px);
+    --portrait-w: min(74vw, 56svh, 580px);
     width: var(--portrait-w);
     margin-left: calc(var(--portrait-w) * -0.5);
-    top: clamp(19%, 23svh, 26%);
+    top: clamp(16%, 20svh, 23%);
   }
   .hero-bottom p {
     font-size: 15px;
@@ -1015,11 +1015,11 @@ a:focus-visible {
     line-height: 1.08;
   }
   .portrait-wrap {
-    --portrait-w: min(84vw, 45svh, 360px);
+    --portrait-w: min(94vw, 52svh, 440px);
     width: var(--portrait-w);
     max-width: none;
     margin-left: calc(var(--portrait-w) * -0.5);
-    top: clamp(18%, 21svh, 24%);
+    top: clamp(15%, 18svh, 21%);
   }
   .portrait-label {
     font-size: 7px;
@@ -1322,8 +1322,8 @@ a:focus-visible {
     min-height: 0;
   }
   .portrait-wrap {
-    --portrait-w: min(45vw, 46svh, 380px);
-    top: 19%;
+    --portrait-w: min(56vw, 55svh, 480px);
+    top: 16%;
   }
   .hero-bottom p {
     font-size: 13.5px;
@@ -1372,10 +1372,10 @@ main,
   line-height: 1.05;
 }
 .portrait-wrap {
-  --portrait-w: min(52vw, 52svh, 540px);
+  --portrait-w: min(64vw, 62svh, 700px);
   width: var(--portrait-w);
   margin-left: calc(var(--portrait-w) * -0.5);
-  top: clamp(17%, 21svh, 24%);
+  top: clamp(14%, 18svh, 21%);
 }
 .portrait.portrait--dark {
   filter: brightness(0.2) contrast(1.15) grayscale(0.25) drop-shadow(0 20px 25px rgba(0, 0, 0, 0.85));
@@ -1528,17 +1528,17 @@ main,
 }
 @media (max-width: 1023px) {
   .portrait-wrap {
-    --portrait-w: min(60vw, 48svh, 460px);
+    --portrait-w: min(74vw, 56svh, 580px);
     width: var(--portrait-w);
     margin-left: calc(var(--portrait-w) * -0.5);
-    top: clamp(19%, 23svh, 26%);
+    top: clamp(16%, 20svh, 23%);
   }
 }
 @media (max-width: 639px) {
   .portrait-wrap {
-    --portrait-w: min(84vw, 45svh, 360px);
+    --portrait-w: min(94vw, 52svh, 440px);
     width: var(--portrait-w);
     margin-left: calc(var(--portrait-w) * -0.5);
-    top: clamp(18%, 21svh, 24%);
+    top: clamp(15%, 18svh, 21%);
   }
 }
