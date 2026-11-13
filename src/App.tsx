@@ -225,7 +225,22 @@ function Hero() {
   ];
 
   return (
-    <section ref={ref} className="hero" id="top">
+    <section ref={ref} className={`hero ${isLit ? "is-lit" : ""}`} id="top">
+      <div className="hero-bg-layer" aria-hidden="true">
+        <picture>
+          <source srcSet="./hero-moonlight.webp" type="image/webp" />
+          <img
+            src="./hero-moonlight.jpg"
+            alt=""
+            className="hero-bg-image"
+            loading="eager"
+            decoding="async"
+            width="1280"
+            height="720"
+          />
+        </picture>
+        <div className="hero-bg-overlay" />
+      </div>
       <FadeIn y={-20}>
         <nav aria-label="Navigasi utama">
           <a className="wordmark" href="#top">
