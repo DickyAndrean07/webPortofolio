@@ -200,15 +200,172 @@ function Magnet({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
+interface PullCordProps {
+  isLit: boolean;
+  onToggle: () => void;
+  scrollYProgress: MotionValue<number>;
+}
+
+function PullCord({ isLit, onToggle, scrollYProgress }: PullCordProps) {
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [scrollPull, setScrollPull] = useState(0);
+  const startYRef = useRef(0);
+
+  useEffect(() => {
+    return scrollYProgress.on("change", (latest) => {
+      if (!isLit) {
+        const p = Math.min(1, Math.max(0, latest / 0.32));
+        setScrollPull(p * 75);
+      } else {
+        setScrollPull(0);
+      }
+    });
+  }, [scrollYProgress, isLit]);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setIsDragging(true);
+    startYRef.current = e.clientY;
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    const delta = Math.max(0, e.clientY - startYRef.current);
+    const damped = delta < 80 ? delta : 80 + (delta - 80) * 0.35;
+    setDragY(Math.min(125, damped));
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+
+    if (dragY >= 48) {
+      if (navigator.vibrate) navigator.vibrate(15);
+      onToggle();
+    } else if (dragY < 4) {
+      if (navigator.vibrate) navigator.vibrate(15);
+      onToggle();
+    }
+    setDragY(0);
+  };
+
+  const baseLen = 76;
+  const totalPull = isDragging ? dragY : Math.max(dragY, scrollPull);
+  const knobY = baseLen + totalPull;
+  const isPromptVisible = !isLit && totalPull < 18;
+
+  return (
+    <div
+      className={`pull-cord-wrap ${isLit ? "is-lit" : ""}`}
+      aria-label="Tali saklar lampu. Tarik atau scroll ke bawah untuk menyalakan."
+    >
+      <svg
+        className="pull-cord-svg"
+        width="190"
+        height="260"
+        viewBox="0 0 190 260"
+        aria-hidden="true"
+      >
+        <defs>
+          <filter id="cordKnobGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="rgba(255, 220, 130, 0.6)" />
+          </filter>
+        </defs>
+
+        <line
+          x1="24"
+          y1="0"
+          x2="24"
+          y2={knobY - 6}
+          className="pull-cord-line"
+        />
+
+        <g
+          className="pull-cord-knob"
+          transform={`translate(24, ${knobY})`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          tabIndex={0}
+          role="button"
+          aria-label={isLit ? "Matikan lampu" : "Tarik untuk menyalakan lampu"}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onToggle();
+            }
+          }}
+        >
+          <circle cx="0" cy="0" r="18" fill="transparent" />
+          <circle
+            cx="0"
+            cy="0"
+            r="6.5"
+            fill={isLit ? "#fffcee" : "#f5ede3"}
+            stroke={isLit ? "#ffd885" : "#c4b5a5"}
+            strokeWidth="1.5"
+            filter={isLit ? "url(#cordKnobGlow)" : undefined}
+          />
+          <circle cx="-2" cy="-2" r="2" fill="rgba(255,255,255,0.85)" />
+        </g>
+
+        <g
+          className="pull-cord-prompt"
+          style={{
+            opacity: isPromptVisible ? 1 : 0,
+            transform: `translate(0px, ${Math.min(totalPull * 0.4, 25)}px)`,
+            transition: "opacity 0.25s ease, transform 0.25s ease",
+          }}
+        >
+          <path
+            d={`M 88 ${knobY + 26} C 62 ${knobY + 22}, 42 ${knobY + 16}, 33 ${knobY + 4}`}
+            className="pull-cord-arrow"
+          />
+          <path
+            d={`M 31 ${knobY + 11} L 33 ${knobY + 4} L 40 ${knobY + 7}`}
+            className="pull-cord-arrow"
+          />
+          <text
+            x="96"
+            y={knobY + 30}
+            className="pull-cord-text"
+          >
+            pull the cord!
+          </text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
 function Hero() {
-  const ref = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
+    target: trackRef,
+    offset: ["start start", "end end"],
   });
   const reduced = useReducedMotion();
   const y = useTransform(scrollYProgress, [0, 1], [0, 110]);
   const [isLit, setIsLit] = useState(false);
+
+  useEffect(() => {
+    return scrollYProgress.on("change", (latest) => {
+      // Reversible scroll trigger: turn on at 0.32, turn off below 0.18
+      if (latest >= 0.32 && !isLit) {
+        setIsLit(true);
+        if (navigator.vibrate) navigator.vibrate(15);
+      } else if (latest < 0.18 && isLit) {
+        setIsLit(false);
+      }
+    });
+  }, [scrollYProgress, isLit]);
 
   const portraitStars = [
     { x: "-18%", y: "12%", size: 20, delay: 0, duration: 2.1, type: "star" },
@@ -225,7 +382,8 @@ function Hero() {
   ];
 
   return (
-    <section ref={ref} className={`hero ${isLit ? "is-lit" : ""}`} id="top">
+    <div ref={trackRef} className="hero-scroll-track">
+      <section ref={heroRef} className={`hero ${isLit ? "is-lit" : ""}`} id="top">
       <div className="hero-bg-layer" aria-hidden="true">
         <picture>
           <source srcSet="./hero-moonlight.webp" type="image/webp" />
@@ -263,6 +421,11 @@ function Hero() {
           <span>PORTFOLIO / 2026</span>
         </div>
         <h1 className="hero-heading">HI, I'M DICKY</h1>
+        <PullCord
+          isLit={isLit}
+          onToggle={() => setIsLit((p) => !p)}
+          scrollYProgress={scrollYProgress}
+        />
       </FadeIn>
       <motion.div
         className={`portrait-wrap ${isLit ? "is-lit" : ""}`}
@@ -378,6 +541,7 @@ function Hero() {
         </FadeIn>
       </div>
     </section>
+    </div>
   );
 }
 function Marquee() {

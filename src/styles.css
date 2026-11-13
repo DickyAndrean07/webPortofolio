@@ -1547,3 +1547,79 @@ main,
     bottom: 2%;
   }
 }
+
+/* Hero scroll pinning track */
+.hero-scroll-track {
+  position: relative;
+  height: 220vh;
+}
+.hero-scroll-track .hero {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  z-index: 2;
+}
+
+/* Pull Cord */
+.pull-cord-wrap {
+  position: absolute;
+  top: -24px;
+  right: clamp(-30px, 3vw, 50px);
+  z-index: 12;
+  pointer-events: none;
+  user-select: none;
+}
+.pull-cord-svg {
+  overflow: visible;
+  display: block;
+}
+.pull-cord-line {
+  stroke: rgba(255, 234, 159, 0.7);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 2;
+}
+.hero.is-lit .pull-cord-line {
+  stroke: rgba(255, 224, 138, 0.85);
+  stroke-dasharray: none;
+}
+.pull-cord-knob {
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+}
+.pull-cord-knob:active {
+  cursor: grabbing;
+}
+.pull-cord-knob:focus-visible {
+  outline: 2px solid #ffd885;
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+.pull-cord-arrow {
+  stroke: #c4beb5;
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pull-cord-text {
+  font-family: inherit;
+  font-style: italic;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  fill: #e8ded4;
+}
+@media (max-width: 639px) {
+  .hero-scroll-track {
+    height: 200vh;
+  }
+  .pull-cord-wrap {
+    top: -12px;
+    right: -10px;
+  }
+  .pull-cord-text {
+    font-size: 10px;
+  }
+}
