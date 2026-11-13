@@ -224,15 +224,19 @@ function PullCord({ isLit, onToggle, scrollYProgress }: PullCordProps) {
     });
   }, [scrollYProgress, isLit]);
 
+  const didDragRef = useRef(false);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     setIsDragging(true);
+    didDragRef.current = false;
     startYRef.current = e.clientY;
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
     const delta = Math.max(0, e.clientY - startYRef.current);
+    if (delta > 6) didDragRef.current = true;
     const damped = delta < 80 ? delta : 80 + (delta - 80) * 0.35;
     setDragY(Math.min(125, damped));
   };
@@ -244,14 +248,20 @@ function PullCord({ isLit, onToggle, scrollYProgress }: PullCordProps) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     } catch {}
 
-    if (dragY >= 48) {
-      if (navigator.vibrate) navigator.vibrate(15);
-      onToggle();
-    } else if (dragY < 4) {
+    if (dragY >= 45) {
       if (navigator.vibrate) navigator.vibrate(15);
       onToggle();
     }
     setDragY(0);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!didDragRef.current) {
+      if (navigator.vibrate) navigator.vibrate(15);
+      onToggle();
+    }
+    didDragRef.current = false;
   };
 
   const baseLen = 76;
@@ -292,6 +302,7 @@ function PullCord({ isLit, onToggle, scrollYProgress }: PullCordProps) {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
+          onClick={handleClick}
           tabIndex={0}
           role="button"
           aria-label={isLit ? "Matikan lampu" : "Tarik untuk menyalakan lampu"}
@@ -358,10 +369,10 @@ function Hero() {
   useEffect(() => {
     return scrollYProgress.on("change", (latest) => {
       // Reversible scroll trigger: turn on at 0.32, turn off below 0.18
-      if (latest >= 0.32 && !isLit) {
+      if (latest >= 0.28 && !isLit) {
         setIsLit(true);
         if (navigator.vibrate) navigator.vibrate(15);
-      } else if (latest < 0.18 && isLit) {
+      } else if (latest < 0.14 && isLit) {
         setIsLit(false);
       }
     });
