@@ -208,6 +208,21 @@ function Hero() {
   });
   const reduced = useReducedMotion();
   const y = useTransform(scrollYProgress, [0, 1], [0, 110]);
+  const [isLit, setIsLit] = useState(false);
+
+  const portraitStars = [
+    { x: "-18%", y: "12%", size: 20, delay: 0, duration: 2.1, type: "star" },
+    { x: "-24%", y: "38%", size: 14, delay: 0.3, duration: 1.8, type: "dot" },
+    { x: "-15%", y: "62%", size: 22, delay: 0.6, duration: 2.4, type: "star" },
+    { x: "106%", y: "15%", size: 24, delay: 0.2, duration: 2.2, type: "star" },
+    { x: "114%", y: "44%", size: 15, delay: 0.5, duration: 1.9, type: "dot" },
+    { x: "105%", y: "68%", size: 20, delay: 0.1, duration: 2.3, type: "star" },
+    { x: "16%", y: "-12%", size: 18, delay: 0.4, duration: 2.0, type: "star" },
+    { x: "82%", y: "-10%", size: 20, delay: 0.7, duration: 2.5, type: "star" },
+    { x: "49%", y: "-18%", size: 13, delay: 0.25, duration: 1.7, type: "dot" },
+    { x: "0%", y: "84%", size: 16, delay: 0.45, duration: 2.2, type: "star" },
+    { x: "96%", y: "86%", size: 18, delay: 0.35, duration: 2.0, type: "star" },
+  ];
 
   return (
     <section ref={ref} className="hero" id="top">
@@ -234,27 +249,57 @@ function Hero() {
         </div>
         <h1 className="hero-heading">HI, I'M DICKY</h1>
       </FadeIn>
-      <motion.div className="portrait-wrap" style={{ y: reduced ? 0 : y }}>
+      <motion.div
+        className={`portrait-wrap ${isLit ? "is-lit" : ""}`}
+        style={{ y: reduced ? 0 : y }}
+      >
         <FadeIn delay={0.4}>
-          <motion.div
-            className="portrait-glow"
-            animate={
-              reduced
-                ? undefined
-                : {
-                    scale: [0.92, 1.18, 0.92],
-                    opacity: [0.2, 0.44, 0.2],
-                  }
-            }
-            transition={{
-              duration: 2.4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
+          <div className="portrait-glow" />
+
+          {portraitStars.map((s, idx) => (
+            <div
+              key={idx}
+              className="portrait-star"
+              style={
+                {
+                  left: s.x,
+                  top: s.y,
+                  width: s.size,
+                  height: s.size,
+                  "--twinkle-dur": `${s.duration}s`,
+                  "--twinkle-delay": `${s.delay}s`,
+                } as React.CSSProperties
+              }
+              aria-hidden="true"
+            >
+              {s.type === "star" ? (
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" />
+                </svg>
+              ) : (
+                <div className="portrait-star-dot" />
+              )}
+            </div>
+          ))}
+
           <Magnet>
             <motion.div
-              className="portrait-interactive"
+              className={`portrait-interactive ${isLit ? "is-lit" : "is-dark"}`}
+              role="button"
+              tabIndex={0}
+              aria-label={
+                isLit
+                  ? "Lampu sorot menyala. Klik untuk mematikan."
+                  : "Foto gelap. Klik untuk menyalakan lampu sorot."
+              }
+              aria-pressed={isLit}
+              onClick={() => setIsLit((prev) => !prev)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setIsLit((prev) => !prev);
+                }
+              }}
               animate={
                 reduced
                   ? undefined
@@ -272,13 +317,21 @@ function Hero() {
               whileTap={{ scale: 0.95 }}
             >
               <img
-                className="portrait"
+                className={`portrait ${isLit ? "portrait--lit" : "portrait--dark"}`}
                 src="./portrait-transparent.png"
                 alt="Avatar 3D pilihan M. Dicky Andrean"
                 fetchPriority="high"
                 width="850"
                 height="850"
               />
+              <div className={`portrait-lamp-cue ${isLit ? "is-lit" : ""}`}>
+                <span className="cue-icon">{isLit ? "✨" : "💡"}</span>
+                <span className="cue-text">
+                  {isLit
+                    ? "Lampu Menyala · Klik Matikan"
+                    : "Klik untuk Menyalakan"}
+                </span>
+              </div>
             </motion.div>
           </Magnet>
         </FadeIn>
