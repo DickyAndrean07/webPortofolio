@@ -1015,11 +1015,11 @@ a:focus-visible {
     line-height: 1.04;
   }
   .portrait-wrap {
-    --portrait-w: min(88vw, 46svh, 380px);
+    --portrait-w: min(96vw, 54svh, 460px);
     width: var(--portrait-w);
     max-width: none;
     margin-left: calc(var(--portrait-w) * -0.5);
-    top: clamp(21%, 23svh, 26%);
+    top: clamp(20%, 23svh, 26%);
   }
   .portrait-label {
     font-size: 7px;
@@ -1536,9 +1536,14 @@ main,
 }
 @media (max-width: 639px) {
   .portrait-wrap {
-    --portrait-w: min(94vw, 52svh, 440px);
+    --portrait-w: min(96vw, 54svh, 460px);
     width: var(--portrait-w);
     margin-left: calc(var(--portrait-w) * -0.5);
-    top: clamp(15%, 18svh, 21%);
+    top: clamp(20%, 23svh, 26%);
+  }
+  .portrait-lamp-cue {
+    font-size: 12px;
+    padding: 8px 16px;
+    bottom: 2%;
   }
 }
