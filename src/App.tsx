@@ -219,20 +219,20 @@ function Hero() {
     });
   }, [scrollYProgress]);
 
-  // Gradual scrub values clamped so it stays fully illuminated through the rest of the pin
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.35], [0, 1], { clamp: true });
-  const glowOpacity = useTransform(scrollYProgress, [0, 0.35], [0.04, 0.52], { clamp: true });
+  // Gradual scrub values with flat plateau from 0.35 to 1.0 (stays fully lit)
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.35, 1], [0, 1, 1]);
+  const glowOpacity = useTransform(scrollYProgress, [0, 0.35, 1], [0.04, 0.52, 0.52]);
   const portraitFilter = useTransform(
     scrollYProgress,
-    [0, 0.35],
+    [0, 0.35, 1],
     [
       "brightness(0.2) contrast(1.15) grayscale(0.25) drop-shadow(0 20px 25px rgba(0, 0, 0, 0.85))",
       "brightness(0.92) contrast(1.02) grayscale(0) drop-shadow(0 24px 28px rgba(0, 0, 0, 0.8))",
-    ],
-    { clamp: true }
+      "brightness(0.92) contrast(1.02) grayscale(0) drop-shadow(0 24px 28px rgba(0, 0, 0, 0.8))",
+    ]
   );
-  const starsOpacity = useTransform(scrollYProgress, [0.10, 0.35], [0, 0.88], { clamp: true });
-  const starsScale = useTransform(scrollYProgress, [0.10, 0.35], [0.5, 1], { clamp: true });
+  const starsOpacity = useTransform(scrollYProgress, [0, 0.10, 0.35, 1], [0, 0, 0.88, 0.88]);
+  const starsScale = useTransform(scrollYProgress, [0, 0.10, 0.35, 1], [0.5, 0.5, 1, 1]);
 
   const handlePortraitClick = () => {
     if (!trackRef.current) return;
