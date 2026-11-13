@@ -219,19 +219,20 @@ function Hero() {
     });
   }, [scrollYProgress]);
 
-  // Gradual scrub values (0 to 0.4 of track)
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.38], [0, 1]);
-  const glowOpacity = useTransform(scrollYProgress, [0, 0.38], [0.04, 0.52]);
+  // Gradual scrub values clamped so it stays fully illuminated through the rest of the pin
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.35], [0, 1], { clamp: true });
+  const glowOpacity = useTransform(scrollYProgress, [0, 0.35], [0.04, 0.52], { clamp: true });
   const portraitFilter = useTransform(
     scrollYProgress,
-    [0, 0.38],
+    [0, 0.35],
     [
       "brightness(0.2) contrast(1.15) grayscale(0.25) drop-shadow(0 20px 25px rgba(0, 0, 0, 0.85))",
       "brightness(0.92) contrast(1.02) grayscale(0) drop-shadow(0 24px 28px rgba(0, 0, 0, 0.8))",
-    ]
+    ],
+    { clamp: true }
   );
-  const starsOpacity = useTransform(scrollYProgress, [0.12, 0.38], [0, 0.88]);
-  const starsScale = useTransform(scrollYProgress, [0.12, 0.38], [0.5, 1]);
+  const starsOpacity = useTransform(scrollYProgress, [0.10, 0.35], [0, 0.88], { clamp: true });
+  const starsScale = useTransform(scrollYProgress, [0.10, 0.35], [0.5, 1], { clamp: true });
 
   const handlePortraitClick = () => {
     if (!trackRef.current) return;
