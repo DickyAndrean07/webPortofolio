@@ -979,47 +979,47 @@ a:focus-visible {
     height: 100svh;
     min-height: 0;
     max-height: none;
-    padding: 0 18px;
+    padding: 0 16px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
   .hero nav {
-    padding-top: 14px;
+    padding-top: clamp(14px, 2.2svh, 20px);
   }
   .wordmark {
     font-size: 26px;
   }
   .nav-links {
-    gap: 17px;
-    font-size: 10px;
-    letter-spacing: 0.5px;
+    gap: clamp(10px, 3.2vw, 16px);
+    font-size: 10.5px;
+    letter-spacing: 0.6px;
   }
   .nav-links svg,
   .nav-location {
     display: none;
   }
   .hero-kicker {
-    margin-top: clamp(8px, 1.6svh, 16px);
-    margin-bottom: 2px;
-    font-size: 7px;
-    letter-spacing: 1px;
+    margin-top: clamp(14px, 2.8svh, 24px);
+    margin-bottom: clamp(4px, 0.8svh, 8px);
+    font-size: clamp(8px, 2.4vw, 9.5px);
+    letter-spacing: 1.2px;
   }
   .hero-kicker span:last-child {
-    font-size: 6px;
+    font-size: clamp(8px, 2.4vw, 9.5px);
   }
   .hero h1 {
-    font-size: clamp(28px, min(11.8vw, 8.5svh), 46px);
+    font-size: clamp(34px, min(13.2vw, 9.5svh), 52px);
     letter-spacing: -0.035em;
-    line-height: 1.08;
+    line-height: 1.04;
   }
   .portrait-wrap {
-    --portrait-w: min(94vw, 52svh, 440px);
+    --portrait-w: min(88vw, 46svh, 380px);
     width: var(--portrait-w);
     max-width: none;
     margin-left: calc(var(--portrait-w) * -0.5);
-    top: clamp(15%, 18svh, 21%);
+    top: clamp(21%, 23svh, 26%);
   }
   .portrait-label {
     font-size: 7px;
