@@ -201,159 +201,6 @@ function Magnet({ children }: { children: ReactNode }) {
   );
 }
 
-interface PullCordProps {
-  isLit: boolean;
-  onToggle: () => void;
-  scrollYProgress: MotionValue<number>;
-}
-
-function PullCord({ isLit, onToggle, scrollYProgress }: PullCordProps) {
-  const [dragY, setDragY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [scrollPull, setScrollPull] = useState(0);
-  const startYRef = useRef(0);
-
-  useEffect(() => {
-    return scrollYProgress.on("change", (latest) => {
-      if (!isLit) {
-        const p = Math.min(1, Math.max(0, latest / 0.32));
-        setScrollPull(p * 75);
-      } else {
-        setScrollPull(0);
-      }
-    });
-  }, [scrollYProgress, isLit]);
-
-  const didDragRef = useRef(false);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    setIsDragging(true);
-    didDragRef.current = false;
-    startYRef.current = e.clientY;
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    const delta = Math.max(0, e.clientY - startYRef.current);
-    if (delta > 6) didDragRef.current = true;
-    const damped = delta < 80 ? delta : 80 + (delta - 80) * 0.35;
-    setDragY(Math.min(125, damped));
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {}
-
-    if (dragY >= 45) {
-      if (navigator.vibrate) navigator.vibrate(15);
-      onToggle();
-    }
-    setDragY(0);
-  };
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!didDragRef.current) {
-      if (navigator.vibrate) navigator.vibrate(15);
-      onToggle();
-    }
-    didDragRef.current = false;
-  };
-
-  const baseLen = 76;
-  const totalPull = isDragging ? dragY : Math.max(dragY, scrollPull);
-  const knobY = baseLen + totalPull;
-  const isPromptVisible = !isLit && totalPull < 18;
-
-  return (
-    <div
-      className={`pull-cord-wrap ${isLit ? "is-lit" : ""}`}
-      aria-label="Tali saklar lampu. Tarik atau scroll ke bawah untuk menyalakan."
-    >
-      <svg
-        className="pull-cord-svg"
-        width="190"
-        height="260"
-        viewBox="0 0 190 260"
-        aria-hidden="true"
-      >
-        <defs>
-          <filter id="cordKnobGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="rgba(255, 220, 130, 0.6)" />
-          </filter>
-        </defs>
-
-        <line
-          x1="24"
-          y1="0"
-          x2="24"
-          y2={knobY - 6}
-          className="pull-cord-line"
-        />
-
-        <g
-          className="pull-cord-knob"
-          transform={`translate(24, ${knobY})`}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          onClick={handleClick}
-          tabIndex={0}
-          role="button"
-          aria-label={isLit ? "Matikan lampu" : "Tarik untuk menyalakan lampu"}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              onToggle();
-            }
-          }}
-        >
-          <circle cx="0" cy="0" r="18" fill="transparent" />
-          <circle
-            cx="0"
-            cy="0"
-            r="6.5"
-            fill={isLit ? "#fffcee" : "#f5ede3"}
-            stroke={isLit ? "#ffd885" : "#c4b5a5"}
-            strokeWidth="1.5"
-            filter={isLit ? "url(#cordKnobGlow)" : undefined}
-          />
-          <circle cx="-2" cy="-2" r="2" fill="rgba(255,255,255,0.85)" />
-        </g>
-
-        <g
-          className="pull-cord-prompt"
-          style={{
-            opacity: isPromptVisible ? 1 : 0,
-            transform: `translate(0px, ${Math.min(totalPull * 0.4, 25)}px)`,
-            transition: "opacity 0.25s ease, transform 0.25s ease",
-          }}
-        >
-          <path
-            d={`M 88 ${knobY + 26} C 62 ${knobY + 22}, 42 ${knobY + 16}, 33 ${knobY + 4}`}
-            className="pull-cord-arrow"
-          />
-          <path
-            d={`M 31 ${knobY + 11} L 33 ${knobY + 4} L 40 ${knobY + 7}`}
-            className="pull-cord-arrow"
-          />
-          <text
-            x="96"
-            y={knobY + 30}
-            className="pull-cord-text"
-          >
-            pull the cord!
-          </text>
-        </g>
-      </svg>
-    </div>
-  );
-}
 
 function Hero() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -363,20 +210,46 @@ function Hero() {
     offset: ["start start", "end end"],
   });
   const reduced = useReducedMotion();
-  const y = useTransform(scrollYProgress, [0, 1], [0, 110]);
   const [isLit, setIsLit] = useState(false);
 
+  // Synchronize isLit state with scroll
   useEffect(() => {
     return scrollYProgress.on("change", (latest) => {
-      // Reversible scroll trigger: turn on at 0.32, turn off below 0.18
-      if (latest >= 0.28 && !isLit) {
-        setIsLit(true);
-        if (navigator.vibrate) navigator.vibrate(15);
-      } else if (latest < 0.14 && isLit) {
-        setIsLit(false);
-      }
+      setIsLit(latest >= 0.25);
     });
-  }, [scrollYProgress, isLit]);
+  }, [scrollYProgress]);
+
+  // Gradual scrub values (0 to 0.4 of track)
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.38], [0, 1]);
+  const glowOpacity = useTransform(scrollYProgress, [0, 0.38], [0.04, 0.52]);
+  const portraitFilter = useTransform(
+    scrollYProgress,
+    [0, 0.38],
+    [
+      "brightness(0.2) contrast(1.15) grayscale(0.25) drop-shadow(0 20px 25px rgba(0, 0, 0, 0.85))",
+      "brightness(0.92) contrast(1.02) grayscale(0) drop-shadow(0 24px 28px rgba(0, 0, 0, 0.8))",
+    ]
+  );
+  const starsOpacity = useTransform(scrollYProgress, [0.12, 0.38], [0, 0.88]);
+  const starsScale = useTransform(scrollYProgress, [0.12, 0.38], [0.5, 1]);
+
+  const handlePortraitClick = () => {
+    if (!trackRef.current) return;
+    const maxScroll = trackRef.current.offsetHeight - window.innerHeight;
+    const currentProgress = scrollYProgress.get();
+    if (currentProgress < 0.25) {
+      window.scrollTo({
+        top: Math.round(maxScroll * 0.48),
+        behavior: "smooth",
+      });
+      if (navigator.vibrate) navigator.vibrate(15);
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const portraitStars = [
     { x: "-18%", y: "12%", size: 20, delay: 0, duration: 2.1, type: "star" },
@@ -395,163 +268,165 @@ function Hero() {
   return (
     <div ref={trackRef} className="hero-scroll-track">
       <section ref={heroRef} className={`hero ${isLit ? "is-lit" : ""}`} id="top">
-      <div className="hero-bg-layer" aria-hidden="true">
-        <picture>
-          <source srcSet="./hero-moonlight.webp" type="image/webp" />
-          <img
-            src="./hero-moonlight.jpg"
-            alt=""
-            className="hero-bg-image"
-            loading="eager"
-            decoding="async"
-            width="1280"
-            height="720"
-          />
-        </picture>
-        <div className="hero-bg-overlay" />
-      </div>
-      <FadeIn y={-20}>
-        <nav aria-label="Navigasi utama">
-          <a className="wordmark" href="#top">
-            DA<span>®</span>
-          </a>
-          <div className="nav-links">
-            <a href="#about">About</a>
-            <a href="#skills">Skills</a>
-            <a href="#projects">Projects</a>
-            <a href="#contact">
-              Contact <ArrowUpRight size={14} />
+        <motion.div
+          className="hero-bg-layer"
+          style={{ opacity: reduced ? (isLit ? 1 : 0) : bgOpacity }}
+          aria-hidden="true"
+        >
+          <picture>
+            <source srcSet="./hero-moonlight.webp" type="image/webp" />
+            <img
+              src="./hero-moonlight.jpg"
+              alt=""
+              className="hero-bg-image"
+              loading="eager"
+              decoding="async"
+              width="1280"
+              height="720"
+            />
+          </picture>
+          <div className="hero-bg-overlay" />
+        </motion.div>
+        <FadeIn y={-20}>
+          <nav aria-label="Navigasi utama">
+            <a className="wordmark" href="#top">
+              DA<span>®</span>
             </a>
-          </div>
-          <span className="nav-location">GRESIK, ID</span>
-        </nav>
-      </FadeIn>
-      <FadeIn delay={0.15} className="hero-title">
-        <div className="eyebrow hero-kicker">
-          <span>WEB DEVELOPMENT & AI AUTOMATION</span>
-          <span>PORTFOLIO / 2026</span>
-        </div>
-        <h1 className="hero-heading">HI, I'M DICKY</h1>
-        <PullCord
-          isLit={isLit}
-          onToggle={() => setIsLit((p) => !p)}
-          scrollYProgress={scrollYProgress}
-        />
-      </FadeIn>
-      <motion.div
-        className={`portrait-wrap ${isLit ? "is-lit" : ""}`}
-        style={{ y: reduced ? 0 : y }}
-      >
-        <FadeIn delay={0.4}>
-          <div className="portrait-glow" />
-
-          {portraitStars.map((s, idx) => (
-            <div
-              key={idx}
-              className="portrait-star"
-              style={
-                {
-                  left: s.x,
-                  top: s.y,
-                  width: s.size,
-                  height: s.size,
-                  "--twinkle-dur": `${s.duration}s`,
-                  "--twinkle-delay": `${s.delay}s`,
-                } as React.CSSProperties
-              }
-              aria-hidden="true"
-            >
-              {s.type === "star" ? (
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" />
-                </svg>
-              ) : (
-                <div className="portrait-star-dot" />
-              )}
+            <div className="nav-links">
+              <a href="#about">About</a>
+              <a href="#skills">Skills</a>
+              <a href="#projects">Projects</a>
+              <a href="#contact">
+                Contact <ArrowUpRight size={14} />
+              </a>
             </div>
-          ))}
-
-          <Magnet>
+            <span className="nav-location">GRESIK, ID</span>
+          </nav>
+        </FadeIn>
+        <FadeIn delay={0.15} className="hero-title">
+          <div className="eyebrow hero-kicker">
+            <span>WEB DEVELOPMENT & AI AUTOMATION</span>
+            <span>PORTFOLIO / 2026</span>
+          </div>
+          <h1 className="hero-heading">HI, I'M DICKY</h1>
+        </FadeIn>
+        <div className={`portrait-wrap ${isLit ? "is-lit" : ""}`}>
+          <FadeIn delay={0.4}>
             <motion.div
-              className={`portrait-interactive ${isLit ? "is-lit" : "is-dark"}`}
-              role="button"
-              tabIndex={0}
-              aria-label={
-                isLit
-                  ? "Lampu sorot menyala. Klik untuk mematikan."
-                  : "Foto gelap. Klik untuk menyalakan lampu sorot."
-              }
-              aria-pressed={isLit}
-              onClick={() => setIsLit((prev) => !prev)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setIsLit((prev) => !prev);
-                }
+              className="portrait-glow"
+              style={{ opacity: reduced ? (isLit ? 0.52 : 0.04) : glowOpacity }}
+            />
+
+            <motion.div
+              className="portrait-stars-group"
+              style={{
+                opacity: reduced ? (isLit ? 0.88 : 0) : starsOpacity,
+                scale: reduced ? 1 : starsScale,
               }}
-              animate={
-                reduced
-                  ? undefined
-                  : {
-                      y: [-12, 12, -12],
-                      rotate: [-1.2, 1.2, -1.2],
-                    }
-              }
-              transition={{
-                duration: 2.4,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.95 }}
             >
-              <img
-                className={`portrait ${isLit ? "portrait--lit" : "portrait--dark"}`}
-                src="./portrait-transparent.png"
-                alt="Avatar 3D pilihan M. Dicky Andrean"
-                fetchPriority="high"
-                width="850"
-                height="850"
-              />
-              <div className={`portrait-lamp-cue ${isLit ? "is-lit" : ""}`}>
-                <span className="cue-icon">{isLit ? "✨" : "💡"}</span>
-                <span className="cue-text">
-                  {isLit
-                    ? "Lampu Menyala · Klik Matikan"
-                    : "Klik untuk Menyalakan"}
-                </span>
-              </div>
+              {portraitStars.map((s, idx) => (
+                <div
+                  key={idx}
+                  className="portrait-star"
+                  style={
+                    {
+                      left: s.x,
+                      top: s.y,
+                      width: s.size,
+                      height: s.size,
+                      "--twinkle-dur": `${s.duration}s`,
+                      "--twinkle-delay": `${s.delay}s`,
+                    } as React.CSSProperties
+                  }
+                  aria-hidden="true"
+                >
+                  {s.type === "star" ? (
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" />
+                    </svg>
+                  ) : (
+                    <div className="portrait-star-dot" />
+                  )}
+                </div>
+              ))}
             </motion.div>
-          </Magnet>
-        </FadeIn>
-        <span className="portrait-label">A CURIOUS MIND, ALWAYS BUILDING.</span>
-      </motion.div>
-      <div className="hero-bottom">
-        <FadeIn delay={0.3}>
-          <span className="availability">
-            <i /> OPEN TO INTERNSHIP
-          </span>
-          <p>
-            Turning curiosity into
-            <br />
-            meaningful digital
-            <br />
-            <span>experiences.</span>
-          </p>
-          <a className="scroll-link" href="#projects">
-            <ArrowDown size={16} /> SCROLL TO EXPLORE
-          </a>
-        </FadeIn>
-        <FadeIn delay={0.5}>
-          <ContactButton />
-          <p className="hero-note">
-            Mahasiswa Teknik Informatika.
-            <br />
-            Builder. Lifelong learner.
-          </p>
-        </FadeIn>
-      </div>
-    </section>
+
+            <Magnet>
+              <motion.div
+                className={`portrait-interactive ${isLit ? "is-lit" : "is-dark"}`}
+                role="button"
+                tabIndex={0}
+                aria-label={
+                  isLit
+                    ? "Lampu sorot menyala. Klik untuk kembali ke atas."
+                    : "Klik untuk menyalakan lampu dan gulir ke bawah."
+                }
+                aria-pressed={isLit}
+                onClick={handlePortraitClick}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handlePortraitClick();
+                  }
+                }}
+                animate={
+                  reduced
+                    ? undefined
+                    : {
+                        y: [-12, 12, -12],
+                        rotate: [-1.2, 1.2, -1.2],
+                      }
+                }
+                transition={{
+                  duration: 2.4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <motion.img
+                  className={`portrait ${isLit ? "portrait--lit" : "portrait--dark"}`}
+                  src="./portrait-transparent.png"
+                  alt="Avatar 3D pilihan M. Dicky Andrean"
+                  fetchPriority="high"
+                  width="850"
+                  height="850"
+                  style={{
+                    filter: reduced ? undefined : portraitFilter,
+                  }}
+                />
+              </motion.div>
+            </Magnet>
+          </FadeIn>
+          <span className="portrait-label">A CURIOUS MIND, ALWAYS BUILDING.</span>
+        </div>
+        <div className="hero-bottom">
+          <FadeIn delay={0.3}>
+            <span className="availability">
+              <i /> OPEN TO INTERNSHIP
+            </span>
+            <p>
+              Turning curiosity into
+              <br />
+              meaningful digital
+              <br />
+              <span>experiences.</span>
+            </p>
+            <a className="scroll-link" href="#projects">
+              <ArrowDown size={16} /> SCROLL TO EXPLORE
+            </a>
+          </FadeIn>
+          <FadeIn delay={0.5}>
+            <ContactButton />
+            <p className="hero-note">
+              Mahasiswa Teknik Informatika.
+              <br />
+              Builder. Lifelong learner.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
     </div>
   );
 }
