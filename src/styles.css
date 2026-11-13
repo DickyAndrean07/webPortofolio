@@ -1508,27 +1508,9 @@ main,
     margin-left: calc(var(--portrait-w) * -0.5);
     top: clamp(20%, 23svh, 26%);
   }
-  .hero-scroll-track {
-  position: relative;
-  height: 150vh;
-}
-.hero-scroll-track .hero {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-  z-index: 2;
-}
-.hero-scroll-track .hero {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-  z-index: 2;
 }
 
-@media (max-width: 639px) {
-  .hero-scroll-track {
+.hero-scroll-track {
   position: relative;
   height: 150vh;
 }
@@ -1538,14 +1520,6 @@ main,
   height: 100vh;
   height: 100svh;
   z-index: 2;
-}
-  .pull-cord-wrap {
-    top: -12px;
-    right: -10px;
-  }
-  .pull-cord-text {
-    font-size: 10px;
-  }
 }
 
 .portrait-stars-group {
