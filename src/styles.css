@@ -1322,8 +1322,8 @@ a:focus-visible {
     min-height: 0;
   }
   .portrait-wrap {
-    --portrait-w: min(56vw, 55svh, 480px);
-    top: 16%;
+    --portrait-w: min(66vw, 64svh, 560px);
+    top: 19%;
   }
   .hero-bottom p {
     font-size: 13.5px;
@@ -1372,10 +1372,10 @@ main,
   line-height: 1.05;
 }
 .portrait-wrap {
-  --portrait-w: min(64vw, 62svh, 700px);
+  --portrait-w: min(76vw, 72svh, 840px);
   width: var(--portrait-w);
   margin-left: calc(var(--portrait-w) * -0.5);
-  top: clamp(14%, 18svh, 21%);
+  top: clamp(18%, 22svh, 25%);
 }
 .portrait.portrait--dark {
   filter: brightness(0.2) contrast(1.15) grayscale(0.25) drop-shadow(0 20px 25px rgba(0, 0, 0, 0.85));
@@ -1458,7 +1458,7 @@ main,
 }
 .portrait-lamp-cue {
   position: absolute;
-  bottom: 18%;
+  bottom: 8%;
   left: 50%;
   transform: translateX(-50%);
   display: inline-flex;
