@@ -73,14 +73,17 @@ a:focus-visible {
   top: 10px;
 }
 .hero {
-  min-height: 760px;
+  height: 100vh;
   height: 100svh;
-  max-height: 1150px;
+  min-height: 0;
+  max-height: none;
   position: relative;
-  padding: 0 40px;
+  padding: 0 clamp(20px, 3.2vw, 40px);
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   overflow: hidden;
+  box-sizing: border-box;
 }
 .hero-bg-layer {
   position: absolute;
@@ -117,7 +120,7 @@ a:focus-visible {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 26px;
+  padding-top: clamp(14px, 2.6svh, 26px);
 }
 .wordmark {
   font-size: 32px;
@@ -149,7 +152,7 @@ a:focus-visible {
 .hero-kicker {
   display: flex;
   justify-content: space-between;
-  margin-top: 38px;
+  margin-top: clamp(10px, 2.4svh, 32px);
   margin-bottom: 4px;
 }
 .eyebrow {
@@ -230,7 +233,7 @@ a:focus-visible {
   justify-content: space-between;
   align-items: flex-end;
   margin-top: auto;
-  padding-bottom: 36px;
+  padding-bottom: clamp(14px, 2.8svh, 32px);
   position: relative;
   z-index: 4;
   pointer-events: none;
@@ -253,11 +256,11 @@ a:focus-visible {
   box-shadow: 0 0 12px #b6efa550;
 }
 .hero-bottom p {
-  font-size: clamp(16px, 1.65vw, 24px);
+  font-size: clamp(15px, 1.55vw, 22px);
   font-weight: 300;
   line-height: 1.35;
   text-transform: uppercase;
-  margin: 19px 0 28px;
+  margin: clamp(8px, 1.6svh, 16px) 0 clamp(10px, 2svh, 22px);
 }
 .hero-bottom p span {
   color: #92969c;
@@ -271,7 +274,7 @@ a:focus-visible {
 }
 .contact-button {
   display: inline-flex;
-  gap: 25px;
+  gap: clamp(14px, 1.6vw, 25px);
   align-items: center;
   background: linear-gradient(
     123deg,
@@ -286,9 +289,9 @@ a:focus-visible {
   outline: 2px solid white;
   outline-offset: -3px;
   border-radius: 100px;
-  padding: 19px 36px;
+  padding: clamp(12px, 1.8svh, 17px) clamp(20px, 2vw, 32px);
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 11.5px;
   letter-spacing: 2px;
   color: white;
 }
@@ -297,8 +300,8 @@ a:focus-visible {
   text-align: right;
   text-transform: none;
   color: #8b8b93;
-  line-height: 1.6;
-  margin: 20px 0 0;
+  line-height: 1.55;
+  margin: clamp(8px, 1.5svh, 16px) 0 0;
 }
 .marquee {
   padding: 100px 0 35px;
@@ -874,22 +877,28 @@ a:focus-visible {
   }
   .hero {
     padding: 0 24px;
-    min-height: 720px;
-    max-height: 1000px;
+    height: 100svh;
+    min-height: 0;
+    max-height: none;
   }
   .hero-kicker {
-    margin-top: 50px;
+    margin-top: clamp(12px, 2.2svh, 28px);
   }
   .hero h1 {
-    font-size: 13.8vw;
+    font-size: clamp(38px, min(12.8vw, 14svh), 140px);
   }
   .portrait-wrap {
-    width: 50vw;
-    margin-left: -25vw;
-    top: 40%;
+    --portrait-w: min(50vw, 42svh, 380px);
+    width: var(--portrait-w);
+    margin-left: calc(var(--portrait-w) * -0.5);
+    top: clamp(22%, 26svh, 30%);
   }
   .hero-bottom p {
-    font-size: 16px;
+    font-size: 15px;
+    margin: 8px 0 14px;
+  }
+  .hero-bottom {
+    padding-bottom: clamp(14px, 2.5svh, 24px);
   }
   .hero-note {
     max-width: 180px;
@@ -966,13 +975,18 @@ a:focus-visible {
     --stack-top: 12px;
   }
   .hero {
-    min-height: 730px;
+    height: 100vh;
     height: 100svh;
-    max-height: 900px;
-    padding: 0 20px;
+    min-height: 0;
+    max-height: none;
+    padding: 0 18px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
   .hero nav {
-    padding-top: 20px;
+    padding-top: 14px;
   }
   .wordmark {
     font-size: 26px;
@@ -987,7 +1001,8 @@ a:focus-visible {
     display: none;
   }
   .hero-kicker {
-    margin-top: 43px;
+    margin-top: clamp(8px, 1.6svh, 16px);
+    margin-bottom: 2px;
     font-size: 7px;
     letter-spacing: 1px;
   }
@@ -995,15 +1010,16 @@ a:focus-visible {
     font-size: 6px;
   }
   .hero h1 {
-    font-size: 13.1vw;
+    font-size: clamp(28px, min(11.8vw, 8.5svh), 46px);
     letter-spacing: -0.035em;
-    line-height: 1.15;
+    line-height: 1.08;
   }
   .portrait-wrap {
-    width: 80vw;
-    max-width: 450px;
-    margin-left: -40vw;
-    top: 28%;
+    --portrait-w: min(72vw, 38svh, 290px);
+    width: var(--portrait-w);
+    max-width: none;
+    margin-left: calc(var(--portrait-w) * -0.5);
+    top: clamp(20%, 23svh, 26%);
   }
   .portrait-label {
     font-size: 7px;
@@ -1011,26 +1027,26 @@ a:focus-visible {
     letter-spacing: 2px;
   }
   .hero-bottom {
-    padding-bottom: 28px;
-    gap: 15px;
+    padding-bottom: clamp(12px, 2svh, 18px);
+    gap: 12px;
   }
   .availability {
     font-size: 7px;
     letter-spacing: 1px;
   }
   .hero-bottom p {
-    font-size: 13px;
-    line-height: 1.4;
-    margin: 12px 0 17px;
+    font-size: 11.5px;
+    line-height: 1.35;
+    margin: 6px 0 10px;
   }
   .contact-button {
     font-size: 9px;
-    padding: 15px 20px;
-    gap: 12px;
+    padding: 10px 16px;
+    gap: 10px;
     letter-spacing: 1px;
   }
   .contact-button svg {
-    width: 15px;
+    width: 14px;
   }
   .hero-bottom .hero-note {
     font-size: 9px;
@@ -1301,7 +1317,25 @@ a:focus-visible {
 }
 @media (max-height: 700px) and (min-width: 640px) {
   .hero {
-    height: 780px;
+    height: 100vh;
+    height: 100svh;
+    min-height: 0;
+  }
+  .portrait-wrap {
+    --portrait-w: min(38vw, 40svh, 320px);
+    top: 22%;
+  }
+  .hero-bottom p {
+    font-size: 13.5px;
+    margin: 6px 0 10px;
+  }
+  .contact-button {
+    padding: 10px 18px;
+    font-size: 10px;
+  }
+  .hero-bottom .hero-note {
+    font-size: 9px;
+    margin-top: 6px;
   }
   .project-card {
     position: relative;
@@ -1333,13 +1367,15 @@ main,
   -webkit-text-fill-color: transparent !important;
 }
 .hero h1 {
-  font-size: clamp(48px, 13.2vw, 238px);
+  font-size: clamp(40px, min(12.5vw, 15svh), 210px);
   letter-spacing: -0.04em;
+  line-height: 1.05;
 }
 .portrait-wrap {
-  width: min(54vw, 680px);
-  margin-left: max(-27vw, -340px);
-  top: 25%;
+  --portrait-w: min(44vw, 44svh, 440px);
+  width: var(--portrait-w);
+  margin-left: calc(var(--portrait-w) * -0.5);
+  top: clamp(20%, 24svh, 27%);
 }
 .portrait.portrait--dark {
   filter: brightness(0.2) contrast(1.15) grayscale(0.25) drop-shadow(0 20px 25px rgba(0, 0, 0, 0.85));
@@ -1492,21 +1528,17 @@ main,
 }
 @media (max-width: 1023px) {
   .portrait-wrap {
-    width: 62vw;
-    margin-left: -31vw;
-    top: 28%;
+    --portrait-w: min(52vw, 42svh, 380px);
+    width: var(--portrait-w);
+    margin-left: calc(var(--portrait-w) * -0.5);
+    top: clamp(21%, 25svh, 28%);
   }
 }
 @media (max-width: 639px) {
-  .hero h1 {
-    font-size: 13vw;
-  }
   .portrait-wrap {
-    width: 88vw;
-    margin-left: -44vw;
-    top: 28%;
-  }
-  .hero-bottom p {
-    font-size: 12px;
+    --portrait-w: min(72vw, 38svh, 290px);
+    width: var(--portrait-w);
+    margin-left: calc(var(--portrait-w) * -0.5);
+    top: clamp(20%, 23svh, 26%);
   }
 }
