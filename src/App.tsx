@@ -414,7 +414,7 @@ function Hero() {
               <br />
               <span>experiences.</span>
             </p>
-            <a className="scroll-link" href="#projects">
+            <a className="scroll-link" href="#about">
               <ArrowDown size={16} /> SCROLL TO EXPLORE
             </a>
           </FadeIn>
@@ -431,66 +431,7 @@ function Hero() {
     </div>
   );
 }
-function Marquee() {
-  const ref = useRef<HTMLElement>(null);
-  const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const right = useTransform(scrollYProgress, [0, 1], [-250, 0]);
-  const left = useTransform(scrollYProgress, [0, 1], [0, -250]);
-  return (
-    <section
-      ref={ref}
-      className="marquee"
-      aria-label="Eksplorasi visual proyek"
-    >
-      <div className="eyebrow marquee-label">
-        IDEAS INTO INTERFACES <span>↓ SELECTED EXPLORATIONS</span>
-      </div>
-      {[0, 1].map((row) => (
-        <motion.div
-          key={row}
-          className="marquee-row"
-          style={{ x: reduced ? 0 : row ? left : right }}
-          aria-hidden="true"
-        >
-          {[...projects, ...projects, ...projects].map((p, i) => (
-            <div
-              key={i}
-              className={`mini-tile ${p.theme} ${p.image ? "has-preview" : ""}`}
-            >
-              {p.image && (
-                <img
-                  src={p.image}
-                  alt=""
-                  loading="lazy"
-                  width="340"
-                  height="210"
-                />
-              )}
-              <p>{p.mark}</p>
-              <p className="mini-name">
-                {p.name}
-                <p.icon size={34} />
-              </p>
-              <div className="mini-lines">
-                <span />
-                <span />
-                <span />
-              </div>
-            </div>
-          ))}
-        </motion.div>
-      ))}
-      <p className="visual-note">
-        Cuplikan demo & dokumentasi proyek asli · PancoKuy masih dalam
-        pengembangan.
-      </p>
-    </section>
-  );
-}
+
 function Character({
   char,
   index,
@@ -513,7 +454,7 @@ function AnimatedText({ text }: { text: string }) {
   const ref = useRef<HTMLParagraphElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start 0.8", "end 0.2"],
+    offset: ["start 0.85", "end 0.52"],
   });
   const reduced = useReducedMotion();
   let index = 0;
@@ -822,7 +763,6 @@ export default function App() {
       />
       <main>
         <Hero />
-        <Marquee />
         <About />
         <Skills />
         <Projects />
