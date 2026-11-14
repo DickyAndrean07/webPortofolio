@@ -219,20 +219,20 @@ function Hero() {
     });
   }, [scrollYProgress]);
 
-  // Gradual scrub values with flat plateau from 0.35 to 1.0 (stays fully lit)
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.35, 1], [0, 1, 1]);
-  const glowOpacity = useTransform(scrollYProgress, [0, 0.35, 1], [0.04, 0.52, 0.52]);
+  // Gradual scrub values with flat plateau from 0.45 to 1.0 (stays fully lit)
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.45, 1], [0, 1, 1]);
+  const glowOpacity = useTransform(scrollYProgress, [0, 0.45, 1], [0.04, 0.52, 0.52]);
   const portraitFilter = useTransform(
     scrollYProgress,
-    [0, 0.35, 1],
+    [0, 0.45, 1],
     [
       "brightness(0.2) contrast(1.15) grayscale(0.25) drop-shadow(0 20px 25px rgba(0, 0, 0, 0.85))",
       "brightness(0.92) contrast(1.02) grayscale(0) drop-shadow(0 24px 28px rgba(0, 0, 0, 0.8))",
       "brightness(0.92) contrast(1.02) grayscale(0) drop-shadow(0 24px 28px rgba(0, 0, 0, 0.8))",
     ]
   );
-  const starsOpacity = useTransform(scrollYProgress, [0, 0.10, 0.35, 1], [0, 0, 0.88, 0.88]);
-  const starsScale = useTransform(scrollYProgress, [0, 0.10, 0.35, 1], [0.5, 0.5, 1, 1]);
+  const starsOpacity = useTransform(scrollYProgress, [0, 0.15, 0.45, 1], [0, 0, 0.88, 0.88]);
+  const starsScale = useTransform(scrollYProgress, [0, 0.15, 0.45, 1], [0.5, 0.5, 1, 1]);
 
   const handlePortraitClick = () => {
     if (!trackRef.current) return;
@@ -240,7 +240,7 @@ function Hero() {
     const currentProgress = scrollYProgress.get();
     if (currentProgress < 0.25) {
       window.scrollTo({
-        top: Math.round(maxScroll * 0.48),
+        top: Math.round(maxScroll * 0.55),
         behavior: "smooth",
       });
       if (navigator.vibrate) navigator.vibrate(15);

@@ -1513,7 +1513,7 @@ main,
 
 .hero-scroll-track {
   position: relative;
-  height: 150vh;
+  height: 260vh;
 }
 .hero-scroll-track .hero {
   position: sticky;
