@@ -493,7 +493,17 @@ function About() {
         <span className="eyebrow">01 / THE PERSON BEHIND THE PIXELS</span>
         <h2 className="section-heading hero-heading">ABOUT ME</h2>
       </FadeIn>
-      <AnimatedText text="Saya Dicky, mahasiswa Teknik Informatika yang senang mengubah ide menjadi pengalaman digital. Melalui web development dan eksplorasi AI automation, saya belajar membangun solusi yang fungsional, mudah digunakan, dan punya tujuan. Kini, saya mencari kesempatan magang untuk belajar lebih jauh dan berkontribusi bersama tim." />
+      <FadeIn className="about-theater-wrap">
+        <div className="about-theater-frame">
+          <iframe
+            src="./theater/index.html"
+            title="About Dicky — Kartun Panggung Teater"
+            className="about-theater-iframe"
+            loading="lazy"
+            allow="autoplay"
+          />
+        </div>
+      </FadeIn>
       <FadeIn>
         <p className="education">
           S1 Teknik Informatika · Universitas Muhammadiyah Gresik

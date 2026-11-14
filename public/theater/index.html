@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About Dicky — Kartun Panggung Teater</title>
+<!-- Bang Motion Skill v1.19.0 — Gaya 6: Kartun Panggung (1920x1080) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<style>
+:root {
+  --theater-dark: #12090C;
+  --velvet-curtain: #781726;
+  --velvet-dark: #520F1A;
+  --gold-accent: #E5A93C;
+  --wood-floor: #3A2318;
+  --wood-dark: #24140D;
+  --spotlight: #FFF4D0;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width: 100%; height: 100%;
+  background: #090507;
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+#stage {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 1920px; height: 1080px;
+  overflow: hidden;
+  background: var(--theater-dark);
+  transform-origin: center center;
+  box-shadow: 0 0 100px rgba(0,0,0,0.9);
+}
+
+#world {
+  position: absolute; inset: 0;
+  will-change: transform, filter;
+}
+
+/* Bingkai Proscenium Teater */
+.proscenium {
+  position: absolute; inset: 0; pointer-events: none; z-index: 40;
+}
+.proscenium-top {
+  position: absolute; left: 0; top: 0; right: 0; height: 110px;
+  background: linear-gradient(180deg, #4A0E17 0%, #30080F 100%);
+  border-bottom: 6px solid var(--gold-accent);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+}
+.pelmet-drape {
+  position: absolute; bottom: -28px; left: 0; right: 0; height: 32px;
+  background-image: radial-gradient(ellipse 40px 24px at 50% 0%, #781726 95%, transparent 100%);
+  background-size: 80px 32px;
+}
+.proscenium-left, .proscenium-right {
+  position: absolute; top: 0; bottom: 0; width: 80px;
+  background: linear-gradient(90deg, #30080F 0%, #4A0E17 100%);
+  z-index: 41;
+}
+.proscenium-left { left: 0; border-right: 4px solid var(--gold-accent); }
+.proscenium-right { right: 0; border-left: 4px solid var(--gold-accent); background: linear-gradient(270deg, #30080F 0%, #4A0E17 100%); }
+
+/* Footlights / Pendar Bawah Teater */
+.footlights {
+  position: absolute; left: 120px; right: 120px; bottom: 10px; height: 14px;
+  display: flex; justify-content: space-around; z-index: 45; pointer-events: none;
+}
+.footlight-bulb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #FFF3C4;
+  box-shadow: 0 -4px 18px 4px rgba(255,230,150,0.6);
+}
+
+/* Audio Unlock Prompt */
+#audio-prompt {
+  position: absolute; left: 50%; bottom: 45px; transform: translateX(-50%);
+  background: rgba(20,10,14,0.92); backdrop-filter: blur(14px);
+  border: 1px solid var(--gold-accent);
+  padding: 12px 28px; border-radius: 999px;
+  font-size: 17px; color: var(--spotlight); font-weight: 700;
+  cursor: pointer; z-index: 100; transition: all 0.2s ease;
+  display: none; align-items: center; gap: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+#audio-prompt:hover { background: #781726; color: #fff; transform: translateX(-50%) scale(1.04); }
+
+/* Debug Panel (?debug=1) */
+#dbg {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+  display: none; gap: 14px; align-items: center;
+  padding: 12px 22px; border-radius: 16px;
+  background: rgba(14,16,22,0.94); border: 1px solid rgba(229,169,60,0.4);
+  color: #CFD5E3; font: 14px system-ui; z-index: 999;
+}
+#dbg input { width: 440px; accent-color: var(--gold-accent); cursor: pointer; }
+#dbg button { background: var(--gold-accent); border: none; color: #1A0D00; padding: 6px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+#dbg span { font-variant-numeric: tabular-nums; min-width: 7ch; font-family: 'JetBrains Mono', monospace; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="world">
+    <svg id="scene" width="1920" height="1080" viewBox="0 0 1920 1080" style="position:absolute;inset:0"></svg>
+  </div>
+
+  <!-- Dekorasi Teater Depan (Proscenium & Footlights) -->
+  <div class="proscenium">
+    <div class="proscenium-top"><div class="pelmet-drape"></div></div>
+    <div class="proscenium-left"></div>
+    <div class="proscenium-right"></div>
+    <div class="footlights">
+      <div class="footlight-bulb"></div><div class="footlight-bulb"></div><div class="footlight-bulb"></div>
+      <div class="footlight-bulb"></div><div class="footlight-bulb"></div><div class="footlight-bulb"></div>
+      <div class="footlight-bulb"></div><div class="footlight-bulb"></div><div class="footlight-bulb"></div>
+    </div>
+  </div>
+
+  <div id="audio-prompt">🎭 Klik layar untuk memutar teater dengan audio</div>
+
+  <div id="dbg">
+    <button id="dPlay">Pause</button>
+    <input id="dScrub" type="range" min="0" max="2890" value="0">
+    <span id="dClock">0.00s</span>
+  </div>
+</div>
+
+<audio id="vo" src="assets/audio/vo.mp3" preload="auto"></audio>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+const W = 1920, H = 1080;
+const DUR = 28.88; // Durasi tepat audio ElevenLabs
+
+// Responsive Stage Fit
+function fit() {
+  const s = Math.min(innerWidth / W, innerHeight / H);
+  $('#stage').style.transform = `translate(-50%, -50%) scale(${s})`;
+}
+window.addEventListener('resize', fit);
+fit();
+
+// SVG Builder Helpers
+const NS = 'http://www.w3.org/2000/svg';
+const S = $('#scene');
+function N(tag, a = {}, p = S) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in a) n.setAttribute(k, a[k]);
+  p.appendChild(n);
+  return n;
+}
+const G = (a = {}, p = S) => N('g', a, p);
+const R = (x, y, w, h, f, rx = 0, p = S, a = {}) => N('rect', { x, y, width: w, height: h, rx, fill: f, ...a }, p);
+const CI = (cx, cy, r, f, p = S, a = {}) => N('circle', { cx, cy, r, fill: f, ...a }, p);
+const EL = (cx, cy, rx, ry, f, p = S, a = {}) => N('ellipse', { cx, cy, rx, ry, fill: f, ...a }, p);
+const PA = (d, f, p = S, a = {}) => N('path', { d, fill: f || 'none', ...a }, p);
+const LN = (d, st, w, p = S, a = {}) => N('path', { d, fill: 'none', stroke: st, 'stroke-width': w, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', ...a }, p);
+const TX = (x, y, t, size, f, p = S, a = {}) => {
+  const n = N('text', { x, y, 'font-size': size, fill: f, 'font-weight': 700, 'text-anchor': 'middle', ...a }, p);
+  n.textContent = t; return n;
+};
+
+// Shading utility
+function sh(hex, factor) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.min(255, Math.max(0, Math.round(((n >> 16) & 255) * factor)));
+  const g = Math.min(255, Math.max(0, Math.round(((n >> 8) & 255) * factor)));
+  const b = Math.min(255, Math.max(0, Math.round((n & 255) * factor)));
+  return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+// HUKUM 5: Transform manual per sendi (Bukan bounding box GSAP)
+function J(el, tx = 0, ty = 0) {
+  const j = {
+    el, tx, ty, x: 0, y: 0, r: 0, sx: 1, sy: 1,
+    apply() {
+      el.setAttribute('transform', `translate(${j.tx + j.x},${j.ty + j.y}) rotate(${j.r}) scale(${j.sx},${j.sy})`);
+    }
+  };
+  j.apply();
+  return j;
+}
+
+// Defs Gradients & Glows
+const defs = N('defs', {}, S);
+
+// Spotlight gradient
+const gSpot = N('radialGradient', { id: 'gSpot', cx: '50%', cy: '0%', r: '80%' }, defs);
+N('stop', { offset: '0%', 'stop-color': '#FFF7D6', 'stop-opacity': '0.45' }, gSpot);
+N('stop', { offset: '60%', 'stop-color': '#F4DC8C', 'stop-opacity': '0.12' }, gSpot);
+N('stop', { offset: '100%', 'stop-color': '#2A170F', 'stop-opacity': '0' }, gSpot);
+
+// Wood floor gradient
+const gWood = N('linearGradient', { id: 'gWood', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+N('stop', { offset: '0%', 'stop-color': '#4A2C1C' }, gWood);
+N('stop', { offset: '100%', 'stop-color': '#22120B' }, gWood);
+
+// Tirai gradient
+const gCurtain = N('linearGradient', { id: 'gCurtain', x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
+N('stop', { offset: '0%', 'stop-color': '#590E1A' }, gCurtain);
+N('stop', { offset: '25%', 'stop-color': '#8B1B2D' }, gCurtain);
+N('stop', { offset: '50%', 'stop-color': '#63111E' }, gCurtain);
+N('stop', { offset: '75%', 'stop-color': '#9E2236' }, gCurtain);
+N('stop', { offset: '100%', 'stop-color': '#590E1A' }, gCurtain);
+
+/* ================== PANGGUNG SYSTEM ================== */
+const scenes = [];
+function createScene(name) {
+  const g = G({ 'data-name': name }, S);
+  g.style.display = 'none';
+  const sc = {
+    name, g,
+    cam: { x: 960, y: 540, z: 1.14, ox: 0, oy: 0 },
+    apply() {
+      const c = sc.cam;
+      g.setAttribute('transform', `translate(${960 - (c.x + c.ox) * c.z},${540 - (c.y + c.oy) * c.z}) scale(${c.z})`);
+    }
+  };
+  sc.apply();
+  scenes.push(sc);
+  return sc;
+}
+
+// Gambar lantai kayu teater standar panggung
+function drawTheaterFloor(p, yGround = 880) {
+  R(-400, yGround, 2800, 360, 'url(#gWood)', 0, p);
+  // Garis-garis papan kayu
+  for (let y = yGround; y <= 1180; y += 38) {
+    LN(`M -400 ${y} L 2400 ${y}`, '#180B05', 2.5, p, { opacity: 0.65 });
+  }
+  // Pendar spotlight di lantai
+  EL(960, yGround + 20, 520, 80, 'url(#gSpot)', p);
+}
+
+/* ================== KARAKTER PUPPET: DICKY ==================
+   Spesifikasi User:
+   - Rambut ikal bervolume hitam (khas Dicky)
+   - Kaos hitam, kemeja kasual terbuka abu-abu/charcoal
+   - Celana panjang gelap, sneakers putih/krem
+   - Hierarki sendi lengkap: Pinggul -> Paha -> Lutut -> Kaki; Torso -> Lengan -> Tangan; Leher -> Kepala
+   - Mata berkedip tiap ~3.5s
+*/
+function createDicky(p, x, ground, scale = 1.0) {
+  const shirtColor = '#1A1A1E';   // Kaos dalam hitam
+  const jacketColor = '#484E59';  // Kemeja kasual charcoal terbuka
+  const pantsColor = '#252B36';   // Celana panjang gelap
+  const shoeColor = '#F2EFE8';    // Sneakers putih/krem
+  const skinColor = '#F0B788';    // Warna kulit sehat hangat
+  const hairColor = '#141416';    // Rambut hitam
+
+  // Bayangan kontak di lantai
+  const sd = EL(x, ground + 4, 86 * scale, 18, '#140A06', p, { opacity: 0.4 });
+  const place = G({ transform: `translate(${x},${ground}) scale(${scale})` }, p);
+  const rootEl = G({}, place);
+  const root = J(rootEl);
+  const ref = { root, place, scale, sd, x, ground };
+
+  // Kaki Kiri & Kanan (L = depan, R = belakang)
+  for (const side of ['R', 'L']) {
+    const sx = side === 'L' ? -28 : 28;
+    const dk = side === 'R' ? 0.82 : 1.0;
+    const tEl = G({}, rootEl);
+    const thigh = J(tEl, sx, -214);
+    // Paha
+    R(-24, -10, 48, 118, sh(pantsColor, dk), 20, tEl);
+
+    const sEl = G({}, tEl);
+    const shin = J(sEl, 0, 104);
+    // Betis / Tulang Kering
+    R(-21, -8, 42, 110, sh(pantsColor, dk), 18, sEl);
+
+    const fEl = G({}, sEl);
+    const foot = J(fEl, 0, 98);
+    // Sepatu Sneakers Putih/Krem
+    PA('M -26 -10 L 16 -10 C 26 4 52 4 56 16 L 56 26 L -28 26 Z', sh(shoeColor, dk), fEl);
+    // Sol & aksen abu-abu sneakers
+    R(-28, 20, 84, 7, '#D4D0C6', 2, fEl);
+    R(-14, 2, 28, 5, '#A09C90', 1, fEl);
+
+    ref[side + 'thigh'] = thigh;
+    ref[side + 'shin'] = shin;
+    ref[side + 'foot'] = foot;
+  }
+
+  // Badan / Torso
+  const torsoEl = G({}, rootEl);
+  const torso = J(torsoEl, 0, -214);
+  ref.torso = torso;
+
+  // Lengan Kanan (belakang badan)
+  const armR_El = G({}, torsoEl);
+  const armR = J(armR_El, 52, -128);
+  R(-18, -16, 36, 102, sh(jacketColor, 0.85), 16, armR_El);
+  const foreR_El = G({}, armR_El);
+  const foreR = J(foreR_El, 0, 80);
+  R(-15, -12, 30, 92, sh(skinColor, 0.9), 14, foreR_El);
+  const handR_El = G({}, foreR_El);
+  const handR = J(handR_El, 0, 76);
+  EL(0, 4, 18, 22, sh(skinColor, 0.9), handR_El);
+  ref.Rarm = armR; ref.Rfore = foreR; ref.Rhand = handR;
+
+  // Kaos Dalam Hitam
+  PA('M -46 -154 C -60 -146 -64 -114 -60 -76 L -52 10 C -24 24 28 24 54 10 L 62 -76 C 66 -114 56 -146 42 -154 Z', shirtColor, torsoEl);
+
+  // Kemeja Charcoal Terbuka (Flap Kiri & Kanan)
+  PA('M -48 -154 L -66 -80 L -58 10 L -22 10 L -30 -140 Z', jacketColor, torsoEl);
+  PA('M 44 -154 L 64 -80 L 56 10 L 20 10 L 28 -140 Z', jacketColor, torsoEl);
+  // Kerah kemeja
+  PA('M -30 -144 L -12 -170 L -4 -148 Z', '#363B43', torsoEl);
+  PA('M 26 -144 L 8 -170 L 0 -148 Z', '#363B43', torsoEl);
+
+  // Leher
+  R(-15, -182, 30, 42, skinColor, 12, torsoEl);
+
+  // Lengan Kiri (depan badan)
+  const armL_El = G({}, torsoEl);
+  const armL = J(armL_El, -52, -128);
+  R(-18, -16, 36, 102, jacketColor, 16, armL_El);
+  const foreL_El = G({}, armL_El);
+  const foreL = J(foreL_El, 0, 80);
+  R(-15, -12, 30, 92, skinColor, 14, foreL_El);
+  const handL_El = G({}, foreL_El);
+  const handL = J(handL_El, 0, 76);
+  EL(0, 4, 18, 22, skinColor, handL_El);
+  ref.Larm = armL; ref.Lfore = foreL; ref.Lhand = handL;
+
+  // Kepala
+  const headEl = G({}, torsoEl);
+  const head = J(headEl, 0, -165);
+  ref.head = head;
+
+  // Telinga
+  EL(-74, -72, 14, 20, skinColor, headEl);
+  EL(74, -72, 14, 20, skinColor, headEl);
+
+  // Struktur Wajah Dicky
+  PA('M -74 -120 C -74 -178 74 -178 74 -120 L 74 -58 C 74 -2 -74 -2 -74 -58 Z', skinColor, headEl);
+
+  // RAMBUT IKAL BERVOLUME HITAM (Ciri khas Dicky)
+  // Bentuk gumpalan ikal yang bervolume & stylish
+  const hairG = G({}, headEl);
+  PA('M -82 -110 C -92 -170 -40 -205 0 -205 C 45 -205 94 -170 84 -110 C 76 -130 68 -150 40 -155 C 10 -160 -15 -145 -48 -140 C -70 -138 -76 -120 -82 -110 Z', hairColor, hairG);
+  // Gelombang curl rambut
+  CI(-56, -180, 26, hairColor, hairG);
+  CI(-22, -196, 30, hairColor, hairG);
+  CI(22, -196, 30, hairColor, hairG);
+  CI(58, -178, 26, hairColor, hairG);
+  CI(-76, -148, 20, hairColor, hairG);
+  CI(76, -148, 20, hairColor, hairG);
+  // Poni ikal depan bervolume
+  PA('M -48 -154 Q -30 -124 -15 -142 Q 10 -160 25 -136 Q 48 -152 64 -140 Q 50 -172 0 -170 Q -36 -170 -48 -154 Z', '#222226', hairG);
+
+  // Mata (Melek & Kedip)
+  const eyeOpen = G({}, headEl);
+  CI(-28, -78, 7.5, '#1A181B', eyeOpen);
+  CI(28, -78, 7.5, '#1A181B', eyeOpen);
+  // Alis ekspresif
+  LN('M -42 -98 Q -28 -108 -14 -98', '#1A181B', 4.5, headEl);
+  LN('M 14 -98 Q 28 -108 42 -98', '#1A181B', 4.5, headEl);
+
+  // Mata Kedip (Garis lengkung mata tertutup)
+  const eyeClosed = G({ opacity: 0 }, headEl);
+  LN('M -35 -78 Q -28 -72 -21 -78', '#1A181B', 4, eyeClosed);
+  LN('M 21 -78 Q 28 -72 35 -78', '#1A181B', 4, eyeClosed);
+  ref.eyeOpen = eyeOpen;
+  ref.eyeClosed = eyeClosed;
+
+  // Senyum ramah
+  ref.mouth = LN('M -18 -42 Q 0 -30 18 -42', '#7D3325', 5, headEl);
+
+  return ref;
+}
+
+/* =========================================================================
+   PANGGUNG 1: TIRAI BUKA & PENGENALAN (00:00 - 08.50)
+   "Halo! Saya Dicky. Mahasiswa Teknik Informatika dari Gresik yang terobsesi
+    mengubah ide rumit jadi produk digital fungsional."
+   ========================================================================= */
+const sc1 = createScene('panggung1');
+// Dinding panggung teater belakang
+R(-400, -200, 2800, 1100, '#26131A', 0, sc1.g);
+// Pendar spotlight raksasa dari atas
+PA('M 720 -100 L 400 900 L 1520 900 L 1200 -100 Z', 'url(#gSpot)', sc1.g);
+drawTheaterFloor(sc1.g);
+
+// Partikel debu hangat di bawah cahaya spotlight (Benda bergerak 1-5)
+const dustG = G({}, sc1.g);
+for (let i = 0; i < 16; i++) {
+  const dx = 650 + Math.random() * 620;
+  const dy = 300 + Math.random() * 500;
+  CI(dx, dy, 2 + Math.random() * 2.5, '#FFE9A0', dustG, { opacity: 0.35 + Math.random() * 0.4, class: 'dust-p' });
+}
+
+// Plang kayu gantung turun bertuliskan "DICKY · S1 TI UMG" (Diegetik)
+const signG = G({}, sc1.g);
+LN('M 800 -400 L 800 240', '#8A6A4B', 3.5, signG);
+LN('M 1120 -400 L 1120 240', '#8A6A4B', 3.5, signG);
+const signBoard = G({}, signG);
+R(720, 240, 480, 84, '#422415', 12, signBoard, { stroke: '#E5A93C', 'stroke-width': 4 });
+R(728, 248, 464, 68, '#2D160C', 8, signBoard);
+TX(960, 292, 'DICKY · S1 TI UMG', 32, '#FFE8B0', signBoard, { 'font-family': 'Space Grotesk', 'letter-spacing': '2px' });
+// Tali simpul
+CI(800, 240, 7, '#E5A93C', signBoard);
+CI(1120, 240, 7, '#E5A93C', signBoard);
+const jSign = J(signG, 0, -600);
+
+// Tokoh Dicky Panggung 1
+const dicky1 = createDicky(sc1.g, 960, 870, 1.05);
+
+// Tirai Teater Merah Marun (Kiri & Kanan)
+const curtainLeft = G({}, sc1.g);
+R(-100, -50, 1080, 1150, 'url(#gCurtain)', 0, curtainLeft);
+// Lipatan drape tirai kiri
+for (let x = 0; x < 980; x += 90) {
+  LN(`M ${x} -50 L ${x + 20} 1100`, '#3B0910', 12, curtainLeft, { opacity: 0.5 });
+  LN(`M ${x + 40} -50 L ${x + 60} 1100`, '#A32439', 8, curtainLeft, { opacity: 0.35 });
+}
+
+const curtainRight = G({}, sc1.g);
+R(940, -50, 1080, 1150, 'url(#gCurtain)', 0, curtainRight);
+for (let x = 960; x < 2000; x += 90) {
+  LN(`M ${x} -50 L ${x + 20} 1100`, '#3B0910', 12, curtainRight, { opacity: 0.5 });
+  LN(`M ${x + 40} -50 L ${x + 60} 1100`, '#A32439', 8, curtainRight, { opacity: 0.35 });
+}
+
+/* =========================================================================
+   PANGGUNG 2: PROPERTI TECH STACK TURUN (08.50 - 14.70)
+   "Dua senjata utama saya: web development interaktif, dan automasi sistem berbasis AI."
+   ========================================================================= */
+const sc2 = createScene('panggung2');
+// Latar Ruang Server Kontrol Teater
+R(-400, -200, 2800, 1100, '#151C26', 0, sc2.g);
+drawTheaterFloor(sc2.g);
+
+// Rack Server Teater di Belakang (Kiri & Kanan)
+function drawServerRack(p, rx, ry, rw, rh) {
+  const g = G({}, p);
+  R(rx, ry, rw, rh, '#0E131A', 14, g, { stroke: '#2A3647', 'stroke-width': 4 });
+  for (let y = ry + 26; y < ry + rh - 30; y += 46) {
+    R(rx + 16, y, rw - 32, 34, '#1A2330', 6, g);
+    // Ventilasi kipas
+    LN(`M ${rx + 36} ${y + 17} L ${rx + 120} ${y + 17}`, '#3B4D66', 3, g);
+    // LED berkedip
+    CI(rx + rw - 70, y + 17, 5, '#00F0FF', g, { class: 'led-blue' });
+    CI(rx + rw - 50, y + 17, 5, '#00FF88', g, { class: 'led-green' });
+    CI(rx + rw - 30, y + 17, 5, '#FFAA00', g, { class: 'led-yellow' });
+  }
+  // Kabel server warna-warni yang menjuntai
+  LN(`M ${rx + 40} ${ry + rh - 20} Q ${rx + 70} ${ry + rh + 60} ${rx + 140} 880`, '#00F0FF', 4, p, { opacity: 0.6 });
+  LN(`M ${rx + 70} ${ry + rh - 20} Q ${rx + 110} ${ry + rh + 40} ${rx + 190} 880`, '#FF5A36', 4, p, { opacity: 0.6 });
+}
+drawServerRack(sc2.g, 220, 260, 360, 580);
+drawServerRack(sc2.g, 1340, 260, 360, 580);
+
+// Kipas Angin Server Berputar di Panggung 2
+const fanG = G({}, sc2.g);
+CI(400, 320, 32, '#202C3D', fanG);
+const fanBlades = G({}, fanG);
+PA('M 400 320 L 385 290 L 415 290 Z', '#00F0FF', fanBlades);
+PA('M 400 320 L 430 305 L 430 335 Z', '#00F0FF', fanBlades);
+PA('M 400 320 L 415 350 L 385 350 Z', '#00F0FF', fanBlades);
+PA('M 400 320 L 370 335 L 370 305 Z', '#00F0FF', fanBlades);
+const jFan = J(fanBlades, 400, 320);
+
+// Properti Balok Tech Stack Turun dari Tali Panggung Teater
+// 1. REACT Box (Cyan)
+const bReactG = G({}, sc2.g);
+LN('M 640 -500 L 640 280', '#6A7D94', 3, bReactG);
+const bReactBox = G({}, bReactG);
+R(540, 280, 200, 96, '#0B2233', 12, bReactBox, { stroke: '#00F0FF', 'stroke-width': 4 });
+TX(640, 338, 'REACT', 34, '#00F0FF', bReactBox, { 'font-family': 'Space Grotesk' });
+CI(640, 280, 6, '#00F0FF', bReactBox);
+const jReact = J(bReactG, 0, -650);
+
+// 2. PYTHON Box (Gold)
+const bPyG = G({}, sc2.g);
+LN('M 960 -500 L 960 210', '#6A7D94', 3, bPyG);
+const bPyBox = G({}, bPyG);
+R(850, 210, 220, 96, '#30260E', 12, bPyBox, { stroke: '#FFD43B', 'stroke-width': 4 });
+TX(960, 268, 'PYTHON', 34, '#FFD43B', bPyBox, { 'font-family': 'Space Grotesk' });
+CI(960, 210, 6, '#FFD43B', bPyBox);
+const jPy = J(bPyG, 0, -650);
+
+// 3. AI WORKFLOW Box (Coral Glow)
+const bAiG = G({}, sc2.g);
+LN('M 1280 -500 L 1280 280', '#6A7D94', 3, bAiG);
+const bAiBox = G({}, bAiG);
+R(1150, 280, 260, 96, '#38161B', 12, bAiBox, { stroke: '#FF5A36', 'stroke-width': 4 });
+TX(1280, 338, 'AI WORKFLOW', 30, '#FF8A65', bAiBox, { 'font-family': 'Space Grotesk' });
+CI(1280, 280, 6, '#FF5A36', bAiBox);
+const jAi = J(bAiG, 0, -650);
+
+// Tokoh Dicky Panggung 2
+const dicky2 = createDicky(sc2.g, 960, 870, 1.05);
+
+/* =========================================================================
+   PANGGUNG 3: DIORAMA PROYEK MUNCUL (14.70 - 22.40)
+   "Bukan sekadar teori. Saya bangun langsung aplikasi finansial Nabungin,
+    ZliritDO, sampai workflow agent pintar."
+   ========================================================================= */
+const sc3 = createScene('panggung3');
+// Latar Panggung Workshop Mekanik
+R(-400, -200, 2800, 1100, '#1C161D', 0, sc3.g);
+drawTheaterFloor(sc3.g);
+
+// Roda Gigi Mekanik Raksasa di Latar Panggung (Benda bergerak)
+function drawGear(p, gx, gy, gr, teeth, fill) {
+  const g = G({}, p);
+  CI(gx, gy, gr, fill, g);
+  for (let i = 0; i < teeth; i++) {
+    const ang = (i / teeth) * Math.PI * 2;
+    const tx = gx + Math.cos(ang) * (gr + 12);
+    const ty = gy + Math.sin(ang) * (gr + 12);
+    R(tx - 12, ty - 12, 24, 24, fill, 4, g, { transform: `rotate(${(ang * 180) / Math.PI + 45}, ${tx}, ${ty})` });
+  }
+  CI(gx, gy, gr * 0.45, '#1C161D', g);
+  CI(gx, gy, 14, '#E5A93C', g);
+  return g;
+}
+const gear1El = drawGear(sc3.g, 360, 360, 140, 14, '#382D3D');
+const gear2El = drawGear(sc3.g, 590, 480, 95, 10, '#4E3A54');
+const jGear1 = J(gear1El, 0, 0);
+const jGear2 = J(gear2El, 0, 0);
+
+// Trapdoor Celah Lantai Panggung Mekanik
+R(380, 872, 1160, 16, '#180E13', 0, sc3.g);
+
+// Diorama Proyek Platform yang Naik dari Bawah Tanah
+const dioramaPlatG = G({}, sc3.g);
+
+// Penyangga Hidrolik & Steampunk Piston
+LN('M 620 880 L 620 660', '#A098A8', 16, dioramaPlatG);
+LN('M 1300 880 L 1300 660', '#A098A8', 16, dioramaPlatG);
+R(440, 640, 1040, 28, '#4E4254', 6, dioramaPlatG, { stroke: '#E5A93C', 'stroke-width': 3 });
+
+// 1. DIORAMA NABUNGIN (Aplikasi Finansial)
+const dioNabung = G({}, dioramaPlatG);
+R(480, 380, 280, 260, '#152E28', 14, dioNabung, { stroke: '#2AC993', 'stroke-width': 4 });
+TX(620, 430, 'NABUNGIN', 26, '#36EBAE', dioNabung, { 'font-family': 'Space Grotesk' });
+// Celengan koin & grafik finansial naik
+CI(620, 510, 45, '#F7B731', dioNabung);
+TX(620, 520, 'Rp', 24, '#7A4800', dioNabung, { 'font-family': 'Space Grotesk', 'font-weight': 800 });
+// Miniatur grafik naik
+LN('M 520 590 L 570 570 L 630 580 L 710 530', '#2AC993', 5, dioNabung);
+CI(710, 530, 7, '#36EBAE', dioNabung);
+
+// 2. DIORAMA ZLIRIT-DO (Task Management / Checklist)
+const dioZlirit = G({}, dioramaPlatG);
+R(820, 380, 280, 260, '#2D1B36', 14, dioZlirit, { stroke: '#B855D9', 'stroke-width': 4 });
+TX(960, 430, 'ZLIRIT-DO', 26, '#D67CF5', dioZlirit, { 'font-family': 'Space Grotesk' });
+// Checkbox miniatur teater dengan centang hijau
+for (let y = 475; y <= 575; y += 45) {
+  R(855, y, 26, 26, '#1F1226', 6, dioZlirit, { stroke: '#D67CF5', 'stroke-width': 2.5 });
+  PA(`M ${860} ${y + 13} L ${866} ${y + 20} L ${876} ${y + 6}`, '#36EBAE', dioZlirit, { 'stroke-width': 4, stroke: '#36EBAE', fill: 'none' });
+  R(895, y + 6, 175, 14, '#5C4469', 6, dioZlirit);
+}
+
+// 3. DIORAMA AI AGENTS (Workflow Agent Pintar)
+const dioAgent = G({}, dioramaPlatG);
+R(1160, 380, 280, 260, '#2F2012', 14, dioAgent, { stroke: '#FF9F1A', 'stroke-width': 4 });
+TX(1300, 430, 'AI AGENTS', 26, '#FFB347', dioAgent, { 'font-family': 'Space Grotesk' });
+// Nodus agen dan alur panah
+CI(1230, 510, 22, '#FF5A36', dioAgent);
+CI(1370, 510, 22, '#00F0FF', dioAgent);
+CI(1300, 570, 22, '#FFD43B', dioAgent);
+LN('M 1248 510 L 1352 510', '#FFA94D', 3.5, dioAgent);
+LN('M 1238 528 L 1290 556', '#FFA94D', 3.5, dioAgent);
+LN('M 1362 528 L 1310 556', '#FFA94D', 3.5, dioAgent);
+
+const jDiorama = J(dioramaPlatG, 0, 500);
+
+// Tokoh Dicky Panggung 3
+const dicky3 = createDicky(sc3.g, 960, 870, 1.05);
+
+/* =========================================================================
+   PANGGUNG 4: TIRAI MALAM & HORMAT (22.40 - 28.88)
+   "Selalu penasaran, selalu membangun. Mari kolaborasi wujudkan ide bareng di dickyandrean.my.id!"
+   ========================================================================= */
+const sc4 = createScene('panggung4');
+// Langit Panorama Malam Teater
+R(-400, -200, 2800, 1100, '#0B0D18', 0, sc4.g);
+
+// Bulan Sabit Hangat & Bintang Teater
+const moonG = G({}, sc4.g);
+PA('M 1480 200 A 70 70 0 1 0 1410 130 A 55 55 0 1 1 1480 200 Z', '#FFEAA7', moonG);
+// Bintang kelap-kelip
+const starsG = G({}, sc4.g);
+for (let i = 0; i < 28; i++) {
+  const sx = 200 + Math.random() * 1520;
+  const sy = 80 + Math.random() * 400;
+  CI(sx, sy, 1.5 + Math.random() * 2, '#FFF9E6', starsG, { opacity: 0.3 + Math.random() * 0.7, class: 'star-p' });
+}
+
+// Miniatur Panorama Skyline Gedung Kota Malam
+const cityG = G({}, sc4.g);
+function drawSkylineBuilding(p, bx, bw, bh, winCols, winRows) {
+  const by = 880 - bh;
+  R(bx, by, bw, bh, '#121624', 4, p);
+  // Jendela gedung menyala hangat
+  for (let r = 0; r < winRows; r++) {
+    for (let c = 0; c < winCols; c++) {
+      const wx = bx + 14 + c * 22;
+      const wy = by + 20 + r * 30;
+      if (Math.random() > 0.35) {
+        R(wx, wy, 12, 16, Math.random() > 0.5 ? '#FFE599' : '#8CE8FF', 2, p, { opacity: 0.75, class: 'bldg-win' });
+      }
+    }
+  }
+}
+drawSkylineBuilding(cityG, 160, 150, 420, 5, 12);
+drawSkylineBuilding(cityG, 340, 190, 540, 7, 16);
+drawSkylineBuilding(cityG, 560, 130, 360, 4, 10);
+drawSkylineBuilding(cityG, 1240, 140, 380, 5, 11);
+drawSkylineBuilding(cityG, 1410, 200, 510, 7, 15);
+drawSkylineBuilding(cityG, 1640, 150, 390, 5, 11);
+
+drawTheaterFloor(sc4.g);
+
+// Plang Neon Gantung "LET'S TALK ↗" (Diegetik)
+const neonG = G({}, sc4.g);
+LN('M 960 -300 L 960 160', '#556073', 3, neonG);
+const neonSign = G({}, neonG);
+R(760, 160, 400, 80, '#0F1522', 14, neonSign, { stroke: '#00F0FF', 'stroke-width': 4 });
+TX(960, 212, "LET'S TALK ↗", 34, '#00F0FF', neonSign, { 'font-family': 'Space Grotesk', 'letter-spacing': '3px' });
+const jNeon = J(neonG, 0, -450);
+
+// Papan Kayu Penunjuk Website "dickyandrean.my.id" (Diegetik)
+const webSignG = G({}, sc4.g);
+const postEl = R(950, 680, 20, 200, '#3A2012', 4, webSignG);
+const boardEl = G({}, webSignG);
+PA('M 640 680 L 1240 680 L 1280 735 L 1240 790 L 640 790 Z', '#E5A93C', boardEl, { stroke: '#61360E', 'stroke-width': 5 });
+PA('M 648 688 L 1234 688 L 1270 735 L 1234 782 L 648 782 Z', '#2E190D', boardEl);
+TX(950, 746, 'dickyandrean.my.id', 38, '#FFE6A3', boardEl, { 'font-family': 'JetBrains Mono', 'font-weight': 700 });
+const jWebSign = J(webSignG, 0, 400);
+
+// Tokoh Dicky Panggung 4 (Untuk Theatrical Bow)
+const dicky4 = createDicky(sc4.g, 960, 870, 1.05);
+
+// Tirai Penutup Akhir (Kiri & Kanan)
+const endCurtainL = G({}, sc4.g);
+R(-1100, -50, 1080, 1150, 'url(#gCurtain)', 0, endCurtainL);
+const endCurtainR = G({}, sc4.g);
+R(1940, -50, 1080, 1150, 'url(#gCurtain)', 0, endCurtainR);
+
+/* =========================================================================
+   ANIMASI MASTER TIMELINE (SINKRONISASI VO TEPAT 28.88 DETIK)
+   Batas Paragraf Hasil Analisis OfflineAudioContext:
+   - Babak 1: 00:00 - 08.50
+   - Babak 2: 08.50 - 14.70
+   - Babak 3: 14.70 - 22.40
+   - Babak 4: 22.40 - 28.88
+   ========================================================================= */
+const tl = gsap.timeline({ paused: true });
+
+// Idle Kedipan Mata Dicky Rutin (Hukum 4: Tiap ~3.5 detik)
+[dicky1, dicky2, dicky3, dicky4].forEach((dk, idx) => {
+  const blinkTimes = [1.2, 4.5, 7.8, 11.2, 14.6, 18.0, 21.4, 24.8, 27.5];
+  blinkTimes.forEach(t => {
+    tl.set(dk.eyeOpen, { opacity: 0 }, t);
+    tl.set(dk.eyeClosed, { opacity: 1 }, t);
+    tl.set(dk.eyeOpen, { opacity: 1 }, t + 0.14);
+    tl.set(dk.eyeClosed, { opacity: 0 }, t + 0.14);
+  });
+});
+
+/* ---------- BABAK 1: TIRAI BUKA & PENGENALAN (0.0s - 8.5s) ---------- */
+// Setup awal panggung 1 aktif (GSAP set bekerja dua arah saat scrub)
+tl.set(sc1.g, { display: 'block' }, 0);
+tl.set(sc2.g, { display: 'none' }, 0);
+tl.set(sc3.g, { display: 'none' }, 0);
+tl.set(sc4.g, { display: 'none' }, 0);
+
+// Kamera Panggung 1: Sedikit push-in intim (Hukum 1: Zoom 1.14 -> 1.25, tidak pernah wide)
+tl.fromTo(sc1.cam, { z: 1.14, y: 540 }, { z: 1.24, y: 530, duration: 8.0, ease: 'sine.out', onUpdate: sc1.apply }, 0);
+
+// Partikel debu menari lembut
+tl.to('.dust-p', { y: '-=35', duration: 4, repeat: -1, yoyo: true, ease: 'sine.inOut', stagger: 0.2 }, 0);
+
+// Tirai Merah Marun Membuka (0.0s - 1.6s)
+tl.fromTo(curtainLeft, { x: 0 }, { x: -940, duration: 1.8, ease: 'power3.inOut' }, 0.1);
+tl.fromTo(curtainRight, { x: 0 }, { x: 940, duration: 1.8, ease: 'power3.inOut' }, 0.1);
+
+// Plang Nama DICKY · S1 TI UMG Turun berayun (0.4s - 1.6s)
+tl.to(jSign, { y: 0, duration: 1.4, ease: 'bounce.out', onUpdate: jSign.apply }, 0.4);
+tl.to(jSign, { r: -2.5, duration: 0.5, yoyo: true, repeat: 3, ease: 'sine.inOut', onUpdate: jSign.apply }, 1.4);
+
+// Dicky Melangkah Santai ke Tengah (Kaki & Bayangan Jalan)
+tl.fromTo(dicky1.place, { attr: { transform: 'translate(480, 870) scale(1.05)' } }, { attr: { transform: 'translate(960, 870) scale(1.05)' }, duration: 1.8, ease: 'power2.out' }, 0.3);
+tl.fromTo(dicky1.sd, { attr: { cx: 480 } }, { attr: { cx: 960 }, duration: 1.8, ease: 'power2.out' }, 0.3);
+
+// Langkah Kaki Dicky
+tl.to(dicky1.Lthigh, { r: 24, duration: 0.25, yoyo: true, repeat: 5, ease: 'sine.inOut', onUpdate: dicky1.Lthigh.apply }, 0.3);
+tl.to(dicky1.Rthigh, { r: -24, duration: 0.25, yoyo: true, repeat: 5, ease: 'sine.inOut', onUpdate: dicky1.Rthigh.apply }, 0.3);
+tl.to(dicky1.Lshin, { r: 18, duration: 0.25, yoyo: true, repeat: 5, ease: 'sine.inOut', onUpdate: dicky1.Lshin.apply }, 0.3);
+tl.to(dicky1.Rshin, { r: 18, duration: 0.25, yoyo: true, repeat: 5, ease: 'sine.inOut', onUpdate: dicky1.Rshin.apply }, 0.3);
+
+// Dicky Melambai Ramah di Kata "Halo!" (1.3s - 2.8s)
+tl.to(dicky1.Rarm, { r: -115, duration: 0.4, ease: 'back.out(1.5)', onUpdate: dicky1.Rarm.apply }, 1.3);
+tl.to(dicky1.Rfore, { r: -35, duration: 0.3, onUpdate: dicky1.Rfore.apply }, 1.4);
+tl.to(dicky1.Rhand, { r: 35, duration: 0.22, yoyo: true, repeat: 5, ease: 'sine.inOut', onUpdate: dicky1.Rhand.apply }, 1.6);
+// Turunkan tangan perlahan ke posisi santai
+tl.to(dicky1.Rarm, { r: 8, duration: 0.6, ease: 'power2.inOut', onUpdate: dicky1.Rarm.apply }, 2.9);
+tl.to(dicky1.Rfore, { r: 10, duration: 0.5, onUpdate: dicky1.Rfore.apply }, 3.0);
+
+// Idle Bernapas Dicky (Sepanjang Babak 1)
+tl.to(dicky1.torso, { r: 1.4, duration: 1.7, yoyo: true, repeat: 3, ease: 'sine.inOut', onUpdate: dicky1.torso.apply }, 3.0);
+tl.to(dicky1.head, { r: -1.8, duration: 2.1, yoyo: true, repeat: 2, ease: 'sine.inOut', onUpdate: dicky1.head.apply }, 3.0);
+
+// Transisi Teater Antar Panggung (08.2s - 08.5s)
+// Hukum 2: Geser 96 px + Cut tajam
+tl.to(sc1.cam, { ox: -96, duration: 0.32, ease: 'power2.in', onUpdate: sc1.apply }, 8.18);
+
+/* ---------- BABAK 2: PROPERTI TECH STACK TURUN (08.5s - 14.7s) ---------- */
+tl.set(sc1.g, { display: 'none' }, 8.50);
+tl.set(sc2.g, { display: 'block' }, 8.50);
+
+tl.fromTo(sc2.cam, { z: 1.15, ox: 96 }, { ox: 0, z: 1.22, duration: 0.42, ease: 'power3.out', onUpdate: sc2.apply }, 8.50);
+
+// Kipas Server Berputar Cepat Terus-Menerus
+tl.to(jFan, { r: 360 * 8, duration: 6.2, ease: 'none', onUpdate: jFan.apply }, 8.50);
+
+// LED Berkedip Asinkron
+const blinkLed = (sel, dur) => {
+  tl.to(sel, { opacity: 0.2, duration: dur, yoyo: true, repeat: 14, ease: 'steps(1)' }, 8.50);
+};
+blinkLed('.led-blue', 0.28);
+blinkLed('.led-green', 0.42);
+blinkLed('.led-yellow', 0.35);
+
+// Balok Tech Stack Turun Berurutan (Bounce Fisika Tali Panggung Teater)
+// 1. REACT (09.2s)
+tl.to(jReact, { y: 0, duration: 0.9, ease: 'bounce.out', onUpdate: jReact.apply }, 9.1);
+tl.to(jReact, { r: 3, duration: 0.35, yoyo: true, repeat: 2, ease: 'sine.inOut', onUpdate: jReact.apply }, 9.7);
+
+// 2. PYTHON (10.0s)
+tl.to(jPy, { y: 0, duration: 0.95, ease: 'bounce.out', onUpdate: jPy.apply }, 9.9);
+tl.to(jPy, { r: -2.5, duration: 0.38, yoyo: true, repeat: 2, ease: 'sine.inOut', onUpdate: jPy.apply }, 10.5);
+
+// 3. AI WORKFLOW (10.8s)
+tl.to(jAi, { y: 0, duration: 1.0, ease: 'bounce.out', onUpdate: jAi.apply }, 10.7);
+tl.to(jAi, { r: 3.5, duration: 0.4, yoyo: true, repeat: 2, ease: 'sine.inOut', onUpdate: jAi.apply }, 11.3);
+
+// Dicky Menunjuk Bangga ke Arah Balok Teknologi (10.2s - 13.8s)
+tl.to(dicky2.Larm, { r: 75, duration: 0.5, ease: 'back.out(1.4)', onUpdate: dicky2.Larm.apply }, 10.0);
+tl.to(dicky2.Lfore, { r: 40, duration: 0.4, onUpdate: dicky2.Lfore.apply }, 10.1);
+tl.to(dicky2.Rarm, { r: -70, duration: 0.5, ease: 'back.out(1.4)', onUpdate: dicky2.Rarm.apply }, 10.8);
+tl.to(dicky2.Rfore, { r: -35, duration: 0.4, onUpdate: dicky2.Rfore.apply }, 10.9);
+tl.to(dicky2.head, { r: 4, duration: 0.4, onUpdate: dicky2.head.apply }, 10.8);
+
+// Transisi Menuju Panggung 3 (14.4s - 14.7s)
+tl.to(sc2.cam, { ox: -96, duration: 0.3, ease: 'power2.in', onUpdate: sc2.apply }, 14.40);
+
+/* ---------- BABAK 3: DIORAMA PROYEK MUNCUL (14.7s - 22.4s) ---------- */
+tl.set(sc2.g, { display: 'none' }, 14.70);
+tl.set(sc3.g, { display: 'block' }, 14.70);
+
+tl.fromTo(sc3.cam, { z: 1.15, ox: 96 }, { ox: 0, z: 1.25, duration: 0.42, ease: 'power3.out', onUpdate: sc3.apply }, 14.70);
+
+// Roda Gigi Latar Berputar Saling Terhubung (Mekanik Workshop)
+tl.to(jGear1, { r: 360 * 3, duration: 7.7, ease: 'none', onUpdate: jGear1.apply }, 14.70);
+tl.to(jGear2, { r: -360 * 4.4, duration: 7.7, ease: 'none', onUpdate: jGear2.apply }, 14.70);
+
+// Trapdoor Terbuka & Platform Diorama Naik dari Bawah Tanah (15.0s - 16.5s)
+tl.to(jDiorama, { y: 0, duration: 1.5, ease: 'power2.out', onUpdate: jDiorama.apply }, 15.0);
+
+// Aksen Animasi di dalam Diorama:
+// Celengan koin Nabungin berdenyut lembut
+tl.to(dioNabung, { y: -8, duration: 1.2, repeat: 3, yoyo: true, ease: 'sine.inOut' }, 16.5);
+// Nodus AI Agent berdenyut
+tl.to(dioAgent, { scale: 1.03, transformOrigin: 'center', duration: 0.8, repeat: 4, yoyo: true, ease: 'sine.inOut' }, 16.5);
+
+// Dicky Memeriksa Prototipe dengan Teliti (Memegang Dagu / Mengamati)
+tl.to(dicky3.Rarm, { r: -65, duration: 0.5, ease: 'power2.out', onUpdate: dicky3.Rarm.apply }, 16.0);
+tl.to(dicky3.Rfore, { r: -70, duration: 0.45, onUpdate: dicky3.Rfore.apply }, 16.1);
+tl.to(dicky3.head, { r: -8, y: 4, duration: 0.6, ease: 'sine.inOut', onUpdate: dicky3.head.apply }, 16.2);
+tl.to(dicky3.torso, { r: -3, duration: 0.6, onUpdate: dicky3.torso.apply }, 16.2);
+
+// Kamera Panning Lembut Mengikuti Observasi Dicky
+tl.to(sc3.cam, { x: 1000, duration: 5.5, ease: 'sine.inOut', onUpdate: sc3.apply }, 16.5);
+
+// Transisi Menuju Panggung 4 (22.1s - 22.4s)
+tl.to(sc3.cam, { ox: -96, duration: 0.3, ease: 'power2.in', onUpdate: sc3.apply }, 22.10);
+
+/* ---------- BABAK 4: TIRAI MALAM & THEATRICAL BOW (22.4s - 28.88s) ---------- */
+tl.set(sc3.g, { display: 'none' }, 22.40);
+tl.set(sc4.g, { display: 'block' }, 22.40);
+
+tl.fromTo(sc4.cam, { z: 1.15, ox: 96 }, { ox: 0, z: 1.22, duration: 0.42, ease: 'power3.out', onUpdate: sc4.apply }, 22.40);
+
+// Bintang Malam Berkedip Lembut
+tl.to('.star-p', { opacity: 0.1, duration: 1.5, repeat: 4, yoyo: true, ease: 'sine.inOut', stagger: 0.1 }, 22.40);
+
+// Plang Neon "LET'S TALK ↗" Turun dan Menyala Berpendar
+tl.to(jNeon, { y: 0, duration: 1.2, ease: 'bounce.out', onUpdate: jNeon.apply }, 22.6);
+tl.to(neonSign, { opacity: 0.5, duration: 0.15, repeat: 3, yoyo: true, ease: 'steps(1)' }, 23.5);
+
+// Papan Penunjuk Website dickyandrean.my.id Muncul
+tl.to(jWebSign, { y: 0, duration: 1.2, ease: 'back.out(1.5)', onUpdate: jWebSign.apply }, 23.4);
+
+// THEATRICAL BOW (DICKY MEMBUNGKUK HORMAT KE PENONTON TEATER) (25.0s - 27.5s)
+// Tangan kanan diletakkan di dada
+tl.to(dicky4.Rarm, { r: -45, duration: 0.45, ease: 'power2.out', onUpdate: dicky4.Rarm.apply }, 24.8);
+tl.to(dicky4.Rfore, { r: -80, duration: 0.4, onUpdate: dicky4.Rfore.apply }, 24.9);
+tl.to(dicky4.Larm, { r: 25, duration: 0.4, onUpdate: dicky4.Larm.apply }, 25.0);
+
+// Torso & Kepala Membungkuk Santun
+tl.to(dicky4.torso, { r: 28, y: 12, duration: 0.8, ease: 'power2.inOut', onUpdate: dicky4.torso.apply }, 25.2);
+tl.to(dicky4.head, { r: 22, duration: 0.8, ease: 'power2.inOut', onUpdate: dicky4.head.apply }, 25.2);
+tl.to(dicky4.Lthigh, { r: -12, duration: 0.8, onUpdate: dicky4.Lthigh.apply }, 25.2);
+tl.to(dicky4.Rthigh, { r: 8, duration: 0.8, onUpdate: dicky4.Rthigh.apply }, 25.2);
+
+// Tahan posisi hormat sesaat lalu bangkit tersenyum
+tl.to(dicky4.torso, { r: 0, y: 0, duration: 0.7, ease: 'power2.out', onUpdate: dicky4.torso.apply }, 26.8);
+tl.to(dicky4.head, { r: 0, duration: 0.7, ease: 'power2.out', onUpdate: dicky4.head.apply }, 26.8);
+tl.to(dicky4.Rarm, { r: 6, duration: 0.6, onUpdate: dicky4.Rarm.apply }, 27.0);
+tl.to(dicky4.Rfore, { r: 8, duration: 0.6, onUpdate: dicky4.Rfore.apply }, 27.0);
+
+// Tirai Merah Marun Menutup di Akhir Pertunjukan Teater (27.6s - 28.88s)
+tl.to(endCurtainL, { x: 1040, duration: 1.25, ease: 'power3.inOut' }, 27.6);
+tl.to(endCurtainR, { x: -1040, duration: 1.25, ease: 'power3.inOut' }, 27.6);
+
+/* ================= AUDIO & KONTROL ================= */
+const vo = $('#vo');
+const audioPrompt = $('#audio-prompt');
+let audioStarted = false;
+
+function playAudio() {
+  if (audioStarted) return;
+  vo.currentTime = tl.time();
+  vo.play().then(() => {
+    audioStarted = true;
+    audioPrompt.style.display = 'none';
+  }).catch(() => {
+    audioPrompt.style.display = 'flex';
+  });
+}
+
+function start() {
+  tl.play(0);
+  vo.currentTime = 0;
+  playAudio();
+}
+
+// Loop Otomatis
+tl.eventCallback('onComplete', () => {
+  start();
+});
+
+// Sinkronisasi Frame-Accurate Timeline & Audio
+gsap.ticker.add(() => {
+  if (!audioStarted || tl.paused()) return;
+  if (Math.abs(vo.currentTime - tl.time()) > 0.12) {
+    vo.currentTime = tl.time();
+  }
+});
+
+// Gestur pertama untuk mengizinkan Web Audio Autoplay
+const unlock = () => {
+  playAudio();
+  window.removeEventListener('pointerdown', unlock);
+  window.removeEventListener('keydown', unlock);
+};
+window.addEventListener('pointerdown', unlock);
+window.addEventListener('keydown', unlock);
+
+// Kontrol Tombol: Space (Pause/Play), R (Replay)
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (tl.paused()) { tl.play(); vo.play(); }
+    else { tl.pause(); vo.pause(); }
+  } else if (e.key === 'r' || e.key === 'R') {
+    start();
+  }
+});
+
+// Panel Scrub Debug (?debug=1)
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('debug')) {
+  const dbg = $('#dbg');
+  const dPlay = $('#dPlay');
+  const dScrub = $('#dScrub');
+  const dClock = $('#dClock');
+  dbg.style.display = 'flex';
+
+  dPlay.onclick = () => {
+    if (tl.paused()) { tl.play(); vo.play(); dPlay.textContent = 'Pause'; }
+    else { tl.pause(); vo.pause(); dPlay.textContent = 'Play'; }
+  };
+
+  dScrub.oninput = () => {
+    const t = (dScrub.value / 2890) * DUR;
+    tl.pause(t);
+    vo.pause();
+    vo.currentTime = t;
+    dClock.textContent = t.toFixed(2) + 's';
+  };
+
+  gsap.ticker.add(() => {
+    if (!tl.paused()) {
+      dScrub.value = Math.round((tl.time() / DUR) * 2890);
+      dClock.textContent = tl.time().toFixed(2) + 's';
+    }
+  });
+}
+
+// Expose OPENER for automated snapshot & verification tools
+window.OPENER = {
+  W, H, DURATION: DUR, tl,
+  seek(t) {
+    tl.pause(t, false);
+    if (gsap.ticker.tick) gsap.ticker.tick();
+  },
+  play: start
+};
+
+// Mulai pertunjukan teater
+start();
+</script>
+</body>
+</html>
