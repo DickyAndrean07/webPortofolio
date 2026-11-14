@@ -78,6 +78,22 @@ html, body {
   box-shadow: 0 -4px 18px 4px rgba(255,230,150,0.6);
 }
 
+/* Subtitles Overlay */
+#theater-subtitles {
+  position: absolute; left: 50%; bottom: 126px; transform: translateX(-50%);
+  background: rgba(14, 7, 10, 0.88); backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(229, 169, 60, 0.55);
+  padding: 8px 28px; border-radius: 999px;
+  color: #FFF3C4; font-size: 26px; font-weight: 700; letter-spacing: 0.5px;
+  text-align: center; white-space: nowrap; pointer-events: none;
+  z-index: 54; opacity: 0; transform: translateX(-50%) translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+}
+#theater-subtitles.visible {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+
 /* Theater Controls: Play/Pause Bar & Big Overlay */
 .theater-controls {
   position: absolute; left: 50%; bottom: 62px; transform: translateX(-50%);
@@ -175,6 +191,8 @@ html, body {
     <div class="play-overlay-text">▶ PUTAR TEATER DENGAN SUARA</div>
   </div>
 
+  <div id="theater-subtitles"></div>
+
   <div class="theater-controls">
     <button id="btn-toggle-play" class="theater-btn theater-btn-primary" aria-label="Putar atau jeda">
       <svg id="toggle-icon" width="22" height="22" viewBox="0 0 24 24">
@@ -188,6 +206,10 @@ html, body {
         <path d="M3 3v5h5"/>
       </svg>
       <span>Ulang</span>
+    </button>
+    <button id="btn-toggle-sub" class="theater-btn" aria-label="Toggle subtitle">
+      <span style="font-family:'JetBrains Mono', monospace; font-size:15px; border:1.5px solid currentColor; padding:1px 5px; border-radius:4px; font-weight:bold;">CC</span>
+      <span id="sub-btn-text">Sub: ON</span>
     </button>
     <div class="theater-badge-sound">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -909,8 +931,39 @@ const btnToggle = $('#btn-toggle-play');
 const toggleText = $('#toggle-text');
 const toggleIcon = $('#toggle-icon');
 const btnReplay = $('#btn-replay');
+const subEl = $('#theater-subtitles');
+const btnToggleSub = $('#btn-toggle-sub');
+const subBtnText = $('#sub-btn-text');
 
 let isPlaying = false;
+let subEnabled = true;
+
+const subtitles = [
+  { start: 0.00, end: 1.33, text: "Halo! Saya Dicky." },
+  { start: 1.90, end: 4.05, text: "Mahasiswa Teknik Informatika dari Gresik" },
+  { start: 4.39, end: 8.23, text: "yang terobsesi mengubah ide rumit jadi produk digital fungsional." },
+  { start: 8.86, end: 10.18, text: "Dua senjata utama saya:" },
+  { start: 10.70, end: 14.43, text: "web development interaktif, dan automasi sistem berbasis AI." },
+  { start: 14.90, end: 15.86, text: "Bukan sekadar teori." },
+  { start: 16.26, end: 18.92, text: "Saya bangun langsung aplikasi finansial Nabungin, ZliritDO," },
+  { start: 19.23, end: 22.18, text: "sampai workflow agent pintar." },
+  { start: 22.55, end: 24.32, text: "Selalu penasaran, selalu membangun." },
+  { start: 24.68, end: 28.50, text: "Mari kolaborasi wujudkan ide bareng di dickyandrean.my.id!" }
+];
+
+function updateSubtitle(t) {
+  if (!subEnabled) {
+    subEl.classList.remove('visible');
+    return;
+  }
+  const cur = subtitles.find(s => t >= s.start && t <= s.end);
+  if (cur) {
+    if (subEl.textContent !== cur.text) subEl.textContent = cur.text;
+    subEl.classList.add('visible');
+  } else {
+    subEl.classList.remove('visible');
+  }
+}
 
 function play() {
   isPlaying = true;
@@ -951,6 +1004,13 @@ btnToggle.addEventListener('click', e => {
   togglePlay();
 });
 
+btnToggleSub.addEventListener('click', e => {
+  e.stopPropagation();
+  subEnabled = !subEnabled;
+  subBtnText.textContent = subEnabled ? 'Sub: ON' : 'Sub: OFF';
+  updateSubtitle(tl.time());
+});
+
 btnReplay.addEventListener('click', e => {
   e.stopPropagation();
   replay();
@@ -971,6 +1031,7 @@ gsap.ticker.add(() => {
   if (Math.abs(vo.currentTime - tl.time()) > 0.15) {
     vo.currentTime = tl.time();
   }
+  updateSubtitle(tl.time());
 });
 
 // Kontrol Tombol Keyboard: Space (Play/Pause), R (Replay)
@@ -1003,6 +1064,7 @@ if (urlParams.has('debug')) {
     vo.pause();
     vo.currentTime = t;
     dClock.textContent = t.toFixed(2) + 's';
+    updateSubtitle(t);
   };
 
   gsap.ticker.add(() => {

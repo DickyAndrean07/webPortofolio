@@ -1,0 +1,39 @@
+1
+00:00:00,000 --> 00:00:01,330
+Halo! Saya Dicky.
+
+2
+00:00:01,900 --> 00:00:04,050
+Mahasiswa Teknik Informatika dari Gresik
+
+3
+00:00:04,390 --> 00:00:08,230
+yang terobsesi mengubah ide rumit jadi produk digital fungsional.
+
+4
+00:00:08,860 --> 00:00:10,180
+Dua senjata utama saya:
+
+5
+00:00:10,700 --> 00:00:14,430
+web development interaktif, dan automasi sistem berbasis AI.
+
+6
+00:00:14,900 --> 00:00:15,860
+Bukan sekadar teori.
+
+7
+00:00:16,260 --> 00:00:18,920
+Saya bangun langsung aplikasi finansial Nabungin, ZliritDO,
+
+8
+00:00:19,230 --> 00:00:22,180
+sampai workflow agent pintar.
+
+9
+00:00:22,550 --> 00:00:24,320
+Selalu penasaran, selalu membangun.
+
+10
+00:00:24,680 --> 00:00:28,500
+Mari kolaborasi wujudkan ide bareng di dickyandrean.my.id!
