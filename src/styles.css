@@ -522,68 +522,283 @@ a:focus-visible {
   font-size: 120px;
   transform: rotate(-20deg);
 }
+/* Skills Scroll Track (Sticky 3D Rotary Selector) */
+.skills-scroll-track {
+  position: relative;
+  height: 300vh;
+}
 .skills {
-  background: #f6f5f1;
-  color: #0c0c0c;
-  border-radius: 60px 60px 0 0;
-  padding-bottom: 160px;
-}
-.section-meta {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #0d0a0c;
+  color: #f5ede3;
+  padding: clamp(20px, 3svh, 38px) clamp(20px, 4vw, 64px);
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  gap: 20px;
-  align-items: center;
-  margin-bottom: 35px;
+  border-radius: 40px 40px 0 0;
+  box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.9);
+  z-index: 3;
 }
-.section-meta > span:last-child {
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: #838384;
+.skills-ambient-glow {
+  position: absolute;
+  right: 5%;
+  top: 20%;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(229, 169, 60, 0.12) 0%,
+    rgba(255, 136, 17, 0.05) 45%,
+    transparent 70%
+  );
+  filter: blur(70px);
+  z-index: 0;
+}
+.skills-header {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+.skills-meta-mode {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: #e5a93c;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 .skills h2 {
-  text-align: center;
-  margin-bottom: 70px;
+  text-align: left;
+  margin-top: 8px;
+  margin-bottom: 0;
+  font-size: clamp(32px, 4.5vw, 64px);
+  letter-spacing: -0.04em;
+  background: linear-gradient(180deg, #fff3c4 0%, #e5a93c 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-.skill-list {
-  max-width: 1024px;
-  margin: auto;
+.skills-interactive-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  z-index: 2;
 }
-.skill {
+.skills-info-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(16px, 2.4svh, 24px);
+  max-width: 620px;
+}
+.skill-active-card {
+  background: rgba(22, 14, 18, 0.82);
+  border: 1.5px solid rgba(229, 169, 60, 0.35);
+  border-radius: 24px;
+  padding: clamp(20px, 3svh, 34px);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.75),
+    0 0 30px rgba(229, 169, 60, 0.1);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.skill-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.skill-large-num {
+  font-size: clamp(48px, 5.5vw, 76px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: #e5a93c;
+  text-shadow: 0 0 24px rgba(229, 169, 60, 0.45);
+}
+.skill-icon-bubble {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(229, 169, 60, 0.14);
+  border: 1.5px solid rgba(229, 169, 60, 0.45);
   display: flex;
   align-items: center;
-  gap: 60px;
-  border-bottom: 1px solid #0c0c0c26;
-  padding: 32px 0;
+  justify-content: center;
+  color: #fff3c4;
+  box-shadow: 0 0 16px rgba(229, 169, 60, 0.25);
 }
-.skill-number {
-  font-size: 100px;
-  font-weight: 800;
-  letter-spacing: -7px;
-  line-height: 1.1;
-  min-width: 120px;
+.skill-card-content {
+  margin-bottom: 18px;
 }
-.skill h3 {
-  font-size: 27px;
-  font-weight: 500;
+.skill-tagline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  color: #e5a93c;
+  font-weight: 600;
   text-transform: uppercase;
 }
-.skill p {
-  font-size: 17px;
+.skill-title {
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff3c4;
+  margin: 6px 0 10px;
+  letter-spacing: -0.02em;
+}
+.skill-desc {
+  font-size: clamp(14px, 1.2vw, 16px);
   font-weight: 300;
-  opacity: 0.65;
-  max-width: 630px;
   line-height: 1.6;
-  margin: 9px 0 13px;
+  color: #d1c8bf;
+  margin: 0;
 }
-.skill-tech {
+.skill-tech-pills {
+  border-top: 1px solid rgba(229, 169, 60, 0.2);
+  padding-top: 14px;
+}
+.tech-pills-label {
+  display: block;
   font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1.4px;
-  color: #716875;
+  letter-spacing: 1.5px;
+  color: #9c948e;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
-.skill-icon {
-  margin-left: auto;
-  flex-shrink: 0;
+.tech-pills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tech-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(229, 169, 60, 0.1);
+  border: 1px solid rgba(229, 169, 60, 0.35);
+  color: #ffe8b0;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  transition: all 0.2s ease;
+}
+.tech-pill:hover {
+  background: rgba(229, 169, 60, 0.22);
+  border-color: #e5a93c;
+  transform: translateY(-1px);
+}
+.skills-selector-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.skill-tab-btn {
+  background: rgba(25, 18, 22, 0.6);
+  border: 1px solid rgba(229, 169, 60, 0.25);
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: #c4beb5;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+.skill-tab-btn:hover {
+  border-color: rgba(229, 169, 60, 0.6);
+  color: #fff3c4;
+}
+.skill-tab-btn.is-active {
+  background: var(--gold-accent);
+  border-color: #ffd885;
+  color: #1a0d00;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(229, 169, 60, 0.45);
+}
+.skill-tab-btn .tab-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+.skills-dial-col {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.rotary-dial-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  max-height: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+}
+.rotary-dial-container:active {
+  cursor: grabbing;
+}
+.rotary-dial-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.rotary-dial-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(18, 9, 12, 0.92);
+  border: 1px solid rgba(229, 169, 60, 0.5);
+  backdrop-filter: blur(12px);
+  color: #ffe6a3;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), 0 0 16px rgba(229, 169, 60, 0.2);
+}
+.dial-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffaa22;
+  box-shadow: 0 0 10px #ffaa22;
+  animation: dial-dot-pulse 1.8s ease-in-out infinite;
+}
+@keyframes dial-dot-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+.dial-badge-hint {
+  color: #9c948e;
+  font-size: 10px;
+  font-weight: 500;
+  padding-left: 8px;
+  border-left: 1px solid rgba(229, 169, 60, 0.35);
 }
 .projects {
   background: #0c0c0c;
@@ -962,8 +1177,25 @@ a:focus-visible {
     font-size: 80px;
     min-width: 100px;
   }
+  .skills-scroll-track {
+    height: 280vh;
+  }
   .skills {
-    padding-bottom: 130px;
+    padding: 20px 24px;
+    border-radius: 32px 32px 0 0;
+  }
+  .skills-interactive-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    overflow-y: auto;
+  }
+  .rotary-dial-container {
+    min-height: 280px;
+    max-height: 340px;
+    order: -1;
+  }
+  .skills-info-col {
+    max-width: 100%;
   }
   .project-card {
     padding: 20px;
@@ -1151,9 +1383,37 @@ a:focus-visible {
     height: 40px;
     bottom: 4%;
   }
+  .skills-scroll-track {
+    height: 280vh;
+  }
   .skills {
-    border-radius: 35px 35px 0 0;
-    padding-bottom: 110px;
+    padding: 16px 18px;
+    border-radius: 28px 28px 0 0;
+  }
+  .skills h2 {
+    font-size: 28px;
+  }
+  .rotary-dial-container {
+    min-height: 230px;
+    max-height: 270px;
+    order: -1;
+  }
+  .skill-large-num {
+    font-size: 42px;
+  }
+  .skill-title {
+    font-size: 20px;
+  }
+  .skill-desc {
+    font-size: 13px;
+  }
+  .tech-pill {
+    font-size: 10.5px;
+    padding: 4px 10px;
+  }
+  .skill-tab-btn {
+    font-size: 10px;
+    padding: 6px 10px;
   }
   .section-meta {
     margin-bottom: 30px;

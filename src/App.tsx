@@ -1,3 +1,4 @@
+import { RotaryDial3D } from "./components/RotaryDial3D";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   motion,
@@ -102,36 +103,56 @@ const projects = [
   },
 ];
 const skills = [
-  [
-    "Web Development",
-    "Membangun pengalaman web yang fungsional, responsif, dan mudah digunakan.",
-    "React / Next.js / Laravel",
-    Code2,
-  ],
-  [
-    "AI Integration",
-    "Menghubungkan kemampuan AI dengan kebutuhan aplikasi, termasuk pencatatan bahasa alami dan asisten konten.",
-    "Groq / Gemini / NLP",
-    Cpu,
-  ],
-  [
-    "Data & Authentication",
-    "Mengintegrasikan penyimpanan data dan autentikasi untuk mendukung alur aplikasi.",
-    "Supabase / PostgreSQL / MariaDB",
-    Globe2,
-  ],
-  [
-    "Problem Solving",
-    "Memahami proses, menyusun kebutuhan, dan merancang solusi digital yang relevan.",
-    "Analisis / Perancangan sistem",
-    Sparkles,
-  ],
-  [
-    "Continuous Learning",
-    "Terus belajar melalui proyek, eksplorasi teknologi, dan kesempatan berkolaborasi.",
-    "Curiosity / Iteration / Growth",
-    ArrowUpRight,
-  ],
+  {
+    num: "01",
+    name: "Web Development",
+    tagline: "Modern Reactive Interfaces & Motion",
+    description:
+      "Membangun antarmuka web modern yang responsif, fungsional, dan interaktif. Berfokus pada performa tinggi, animasi scroll presisi, dan arsitektur komponen bersih.",
+    tech: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Laravel"],
+    icon: Code2,
+    angle: 0,
+  },
+  {
+    num: "02",
+    name: "AI Integration",
+    tagline: "Intelligent Workflows & Autonomous Agents",
+    description:
+      "Menghubungkan model kecerdasan buatan ke alur kerja produk nyata. Membangun agent mandiri yang memangkas proses manual rumit menjadi hitungan detik.",
+    tech: ["Gemini API", "Groq LPU", "Hermes Agent", "Workflow Automation", "NLP"],
+    icon: Cpu,
+    angle: 72,
+  },
+  {
+    num: "03",
+    name: "Data & Architecture",
+    tagline: "Scalable Persistence & Secure Schemas",
+    description:
+      "Mengintegrasikan penyimpanan data terstruktur, autentikasi aman, dan alur API yang tangguh untuk menopang stabilitas dan pertumbuhan fitur produk.",
+    tech: ["Supabase", "PostgreSQL", "MariaDB", "RESTful API", "Prisma"],
+    icon: Globe2,
+    angle: 144,
+  },
+  {
+    num: "04",
+    name: "Problem Solving",
+    tagline: "Root-Cause Analysis & Systems Thinking",
+    description:
+      "Bukan sekadar menulis baris kode, tapi membedah akar masalah bisnis dan mengeksekusi solusi teknis yang tepat sasaran, teruji, dan terdokumentasi.",
+    tech: ["System Architecture", "Systematic Debugging", "Code Review", "SOP Governance"],
+    icon: Sparkles,
+    angle: 216,
+  },
+  {
+    num: "05",
+    name: "Continuous Learning",
+    tagline: "Learning by Building & Iteration",
+    description:
+      "Memvalidasi konsep lewat pembuatan prototipe nyata secara cepat. Selalu penasaran, mengeksplorasi teknologi baru, dan siap berkolaborasi dalam tim.",
+    tech: ["Rapid Prototyping", "A/B Experiments", "Open Source", "Clean Architecture"],
+    icon: ArrowUpRight,
+    angle: 288,
+  },
 ] as const;
 
 function FadeIn({
@@ -518,31 +539,118 @@ function About() {
   );
 }
 function Skills() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: trackRef,
+    offset: ["start start", "end end"],
+  });
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [progressVal, setProgressVal] = useState(0);
+
+  useEffect(() => {
+    return scrollYProgress.on("change", (latest) => {
+      setProgressVal(latest);
+      // Map 0.0 - 1.0 to 5 skills (each 20%)
+      const idx = Math.min(4, Math.floor(latest * 5));
+      setActiveIndex((prev) => {
+        if (prev !== idx && typeof navigator !== "undefined" && navigator.vibrate) {
+          navigator.vibrate(10);
+        }
+        return idx;
+      });
+    });
+  }, [scrollYProgress]);
+
+  const handleSelectSkill = (idx: number) => {
+    if (!trackRef.current) return;
+    const maxScroll = trackRef.current.offsetHeight - window.innerHeight;
+    const targetScroll =
+      trackRef.current.offsetTop + (idx / 5 + 0.1) * maxScroll;
+    window.scrollTo({
+      top: targetScroll,
+      behavior: "smooth",
+    });
+    setActiveIndex(idx);
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(12);
+    }
+  };
+
+  const activeSkill = skills[activeIndex];
+
   return (
-    <section className="skills section-pad" id="skills">
-      <FadeIn>
-        <div className="section-meta">
-          <span className="eyebrow">02 / WHAT I BRING</span>
-          <span>LEARNING BY BUILDING.</span>
+    <div ref={trackRef} className="skills-scroll-track">
+      <section ref={sectionRef} className="skills" id="skills">
+        {/* Ambient background light */}
+        <div className="skills-ambient-glow" aria-hidden="true" />
+
+        <div className="skills-header">
+          <div className="section-meta">
+            <span className="eyebrow">02 / WHAT I BRING</span>
+            <span className="skills-meta-mode">ROTARY HARDWARE SELECTOR</span>
+          </div>
+          <h2 className="section-heading">MY TOOLKIT</h2>
         </div>
-        <h2 className="section-heading">MY TOOLKIT</h2>
-      </FadeIn>
-      <div className="skill-list">
-        {skills.map(([name, description, tech, Icon], i) => (
-          <FadeIn key={name} delay={i * 0.04}>
-            <article className="skill">
-              <span className="skill-number">0{i + 1}</span>
-              <div>
-                <h3>{name}</h3>
-                <p>{description}</p>
-                <span className="skill-tech">{tech}</span>
+
+        <div className="skills-interactive-grid">
+          {/* Sisi Kiri: Deskripsi Skill Aktif & Badges */}
+          <div className="skills-info-col">
+            <div className="skill-active-card">
+              <div className="skill-card-top">
+                <span className="skill-large-num">{activeSkill.num}</span>
+                <div className="skill-icon-bubble">
+                  <activeSkill.icon size={26} />
+                </div>
               </div>
-              <Icon className="skill-icon" size={30} strokeWidth={1} />
-            </article>
-          </FadeIn>
-        ))}
-      </div>
-    </section>
+
+              <div className="skill-card-content">
+                <span className="skill-tagline">{activeSkill.tagline}</span>
+                <h3 className="skill-title">{activeSkill.name}</h3>
+                <p className="skill-desc">{activeSkill.description}</p>
+              </div>
+
+              <div className="skill-tech-pills">
+                <span className="tech-pills-label">TECH STACK / TOOLS:</span>
+                <div className="tech-pills-wrap">
+                  {activeSkill.tech.map((t) => (
+                    <span key={t} className="tech-pill">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Selector Tabs */}
+            <div className="skills-selector-tabs" role="tablist">
+              {skills.map((s, idx) => (
+                <button
+                  key={s.num}
+                  role="tab"
+                  aria-selected={idx === activeIndex}
+                  className={`skill-tab-btn ${idx === activeIndex ? "is-active" : ""}`}
+                  onClick={() => handleSelectSkill(idx)}
+                >
+                  <span className="tab-num">{s.num}</span>
+                  <span className="tab-name">{s.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sisi Kanan: Roda Piringan 3D Isometrik */}
+          <div className="skills-dial-col">
+            <RotaryDial3D
+              progress={progressVal}
+              activeIndex={activeIndex}
+              onSelectIndex={handleSelectSkill}
+            />
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 function ProjectCard({
