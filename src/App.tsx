@@ -275,9 +275,9 @@ function Hero() {
           aria-hidden="true"
         >
           <picture>
-            <source srcSet="./hero-cityscape.webp" type="image/webp" />
+            <source srcSet="./hero-rooftop.webp" type="image/webp" />
             <img
-              src="./hero-cityscape.jpg"
+              src="./hero-rooftop.jpg"
               alt=""
               className="hero-bg-image"
               loading="eager"
