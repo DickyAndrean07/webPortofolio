@@ -397,12 +397,12 @@ a:focus-visible {
   letter-spacing: -0.055em;
 }
 .about {
-  min-height: 950px;
+  min-height: 900px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 48px;
+  gap: clamp(24px, 3.2svh, 36px);
   text-align: center;
   position: relative;
 }
