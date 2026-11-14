@@ -1020,6 +1020,11 @@ playOverlay.addEventListener('click', () => {
   play();
 });
 
+// Update subtitle di setiap perubahan timeline (otomatis saat play/scrub/seek)
+tl.eventCallback('onUpdate', () => {
+  updateSubtitle(tl.time());
+});
+
 // Loop otomatis saat pertunjukan selesai
 tl.eventCallback('onComplete', () => {
   replay();
@@ -1081,6 +1086,7 @@ window.OPENER = {
   seek(t) {
     tl.pause(t, false);
     if (gsap.ticker.tick) gsap.ticker.tick();
+    updateSubtitle(t);
   },
   play: start
 };
