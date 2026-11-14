@@ -1010,6 +1010,7 @@ a:focus-visible {
     font-size: clamp(8px, 2.4vw, 9.5px);
   }
   .hero h1 {
+    margin-top: clamp(32px, 4.5svh, 44px);
     font-size: clamp(34px, min(13.2vw, 9.5svh), 52px);
     letter-spacing: -0.035em;
     line-height: 1.04;
