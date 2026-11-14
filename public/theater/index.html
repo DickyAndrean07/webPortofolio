@@ -78,18 +78,62 @@ html, body {
   box-shadow: 0 -4px 18px 4px rgba(255,230,150,0.6);
 }
 
-/* Audio Unlock Prompt */
-#audio-prompt {
-  position: absolute; left: 50%; bottom: 45px; transform: translateX(-50%);
-  background: rgba(20,10,14,0.92); backdrop-filter: blur(14px);
-  border: 1px solid var(--gold-accent);
-  padding: 12px 28px; border-radius: 999px;
-  font-size: 17px; color: var(--spotlight); font-weight: 700;
-  cursor: pointer; z-index: 100; transition: all 0.2s ease;
-  display: none; align-items: center; gap: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+/* Theater Controls: Play/Pause Bar & Big Overlay */
+.theater-controls {
+  position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 16px;
+  background: rgba(18, 9, 12, 0.92); backdrop-filter: blur(16px);
+  border: 1.5px solid var(--gold-accent);
+  padding: 10px 24px; border-radius: 999px;
+  z-index: 55; box-shadow: 0 12px 35px rgba(0,0,0,0.85), 0 0 25px rgba(229,169,60,0.25);
 }
-#audio-prompt:hover { background: #781726; color: #fff; transform: translateX(-50%) scale(1.04); }
+.theater-btn {
+  background: transparent; border: none; color: #FFF3C4;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 20px; font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 18px; border-radius: 999px; transition: all 0.2s ease;
+}
+.theater-btn:hover {
+  background: rgba(229, 169, 60, 0.25); color: #fff; transform: scale(1.05);
+}
+.theater-btn-primary {
+  background: var(--gold-accent); color: #1A0D00;
+}
+.theater-btn-primary:hover {
+  background: #FFC04D; color: #000;
+}
+.theater-badge-sound {
+  font-size: 18px; color: #E5A93C; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding-left: 10px; border-left: 1px solid rgba(229,169,60,0.4);
+}
+
+/* Center Big Play Button Overlay */
+.play-overlay {
+  position: absolute; inset: 0;
+  background: rgba(9, 5, 7, 0.58); backdrop-filter: blur(6px);
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;
+  z-index: 52; cursor: pointer; transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.play-overlay.hidden {
+  opacity: 0; visibility: hidden; pointer-events: none;
+}
+.btn-big-play {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: linear-gradient(135deg, #E5A93C 0%, #B87A1E 100%);
+  border: 4px solid #FFF3C4; color: #1A0D00;
+  display: flex; justify-content: center; align-items: center;
+  box-shadow: 0 0 50px rgba(229,169,60,0.65), 0 20px 45px rgba(0,0,0,0.9);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.play-overlay:hover .btn-big-play {
+  transform: scale(1.12);
+}
+.play-overlay-text {
+  color: #FFF3C4; font-size: 26px; font-weight: 800; letter-spacing: 1.5px;
+  text-shadow: 0 3px 15px rgba(0,0,0,0.9);
+}
 
 /* Debug Panel (?debug=1) */
 #dbg {
@@ -123,7 +167,37 @@ html, body {
     </div>
   </div>
 
-  <div id="audio-prompt">🎭 Klik layar untuk memutar teater dengan audio</div>
+  <!-- Play / Pause Controls & Center Big Button -->
+  <div id="play-overlay" class="play-overlay" role="button" aria-label="Putar teater dengan suara">
+    <div class="btn-big-play">
+      <svg width="48" height="48" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" fill="currentColor"/></svg>
+    </div>
+    <div class="play-overlay-text">▶ PUTAR TEATER DENGAN SUARA</div>
+  </div>
+
+  <div class="theater-controls">
+    <button id="btn-toggle-play" class="theater-btn theater-btn-primary" aria-label="Putar atau jeda">
+      <svg id="toggle-icon" width="22" height="22" viewBox="0 0 24 24">
+        <polygon points="6,4 20,12 6,20" fill="currentColor"/>
+      </svg>
+      <span id="toggle-text">Putar</span>
+    </button>
+    <button id="btn-replay" class="theater-btn" aria-label="Ulang dari awal">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+        <path d="M3 3v5h5"/>
+      </svg>
+      <span>Ulang</span>
+    </button>
+    <div class="theater-badge-sound">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+      <span>Suara Otomatis</span>
+    </div>
+  </div>
 
   <div id="dbg">
     <button id="dPlay">Pause</button>
@@ -828,58 +902,84 @@ tl.to(dicky4.Rfore, { r: 8, duration: 0.6, onUpdate: dicky4.Rfore.apply }, 27.0)
 tl.to(endCurtainL, { x: 1040, duration: 1.25, ease: 'power3.inOut' }, 27.6);
 tl.to(endCurtainR, { x: -1040, duration: 1.25, ease: 'power3.inOut' }, 27.6);
 
-/* ================= AUDIO & KONTROL ================= */
+/* ================= AUDIO & KONTROL (PLAY / PAUSE + SUARA OTOMATIS) ================= */
 const vo = $('#vo');
-const audioPrompt = $('#audio-prompt');
-let audioStarted = false;
+const playOverlay = $('#play-overlay');
+const btnToggle = $('#btn-toggle-play');
+const toggleText = $('#toggle-text');
+const toggleIcon = $('#toggle-icon');
+const btnReplay = $('#btn-replay');
 
-function playAudio() {
-  if (audioStarted) return;
+let isPlaying = false;
+
+function play() {
+  isPlaying = true;
+  tl.play();
   vo.currentTime = tl.time();
-  vo.play().then(() => {
-    audioStarted = true;
-    audioPrompt.style.display = 'none';
-  }).catch(() => {
-    audioPrompt.style.display = 'flex';
-  });
+  vo.play().catch(e => console.log('Audio error:', e));
+  playOverlay.classList.add('hidden');
+  toggleText.textContent = 'Pause';
+  toggleIcon.innerHTML = '<rect x="6" y="4" width="4" height="16" fill="currentColor"/><rect x="14" y="4" width="4" height="16" fill="currentColor"/>';
 }
 
-function start() {
-  tl.play(0);
+function pause() {
+  isPlaying = false;
+  tl.pause();
+  vo.pause();
+  playOverlay.classList.remove('hidden');
+  toggleText.textContent = 'Putar';
+  toggleIcon.innerHTML = '<polygon points="6,4 20,12 6,20" fill="currentColor"/>';
+}
+
+function togglePlay() {
+  if (isPlaying) {
+    pause();
+  } else {
+    play();
+  }
+}
+
+function replay() {
+  tl.time(0);
   vo.currentTime = 0;
-  playAudio();
+  play();
 }
 
-// Loop Otomatis
+// Event Listeners untuk Tombol
+btnToggle.addEventListener('click', e => {
+  e.stopPropagation();
+  togglePlay();
+});
+
+btnReplay.addEventListener('click', e => {
+  e.stopPropagation();
+  replay();
+});
+
+playOverlay.addEventListener('click', () => {
+  play();
+});
+
+// Loop otomatis saat pertunjukan selesai
 tl.eventCallback('onComplete', () => {
-  start();
+  replay();
 });
 
 // Sinkronisasi Frame-Accurate Timeline & Audio
 gsap.ticker.add(() => {
-  if (!audioStarted || tl.paused()) return;
-  if (Math.abs(vo.currentTime - tl.time()) > 0.12) {
+  if (!isPlaying || tl.paused()) return;
+  if (Math.abs(vo.currentTime - tl.time()) > 0.15) {
     vo.currentTime = tl.time();
   }
 });
 
-// Gestur pertama untuk mengizinkan Web Audio Autoplay
-const unlock = () => {
-  playAudio();
-  window.removeEventListener('pointerdown', unlock);
-  window.removeEventListener('keydown', unlock);
-};
-window.addEventListener('pointerdown', unlock);
-window.addEventListener('keydown', unlock);
-
-// Kontrol Tombol: Space (Pause/Play), R (Replay)
+// Kontrol Tombol Keyboard: Space (Play/Pause), R (Replay)
 window.addEventListener('keydown', e => {
   if (e.code === 'Space') {
     e.preventDefault();
-    if (tl.paused()) { tl.play(); vo.play(); }
-    else { tl.pause(); vo.pause(); }
+    togglePlay();
   } else if (e.key === 'r' || e.key === 'R') {
-    start();
+    replay();
   }
 });
 
@@ -923,8 +1023,8 @@ window.OPENER = {
   play: start
 };
 
-// Mulai pertunjukan teater
-start();
+// Mulai dalam kondisi standby paused (klik Play untuk putar dengan suara)
+pause();
 </script>
 </body>
 </html>
