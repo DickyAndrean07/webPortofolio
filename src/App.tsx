@@ -1,6 +1,6 @@
-import { RotaryDial3D } from "./components/RotaryDial3D";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
+  AnimatePresence,
   motion,
   useScroll,
   useTransform,
@@ -11,11 +11,9 @@ import {
   ArrowUpRight,
   ArrowDown,
   Code2,
-  Cpu,
   Download,
   Mail,
   Linkedin,
-  Sparkles,
   Globe2,
   Timer,
   Wallet,
@@ -106,52 +104,37 @@ const skills = [
   {
     num: "01",
     name: "Web Development",
-    tagline: "Modern Reactive Interfaces & Motion",
     description:
       "Membangun antarmuka web modern yang responsif, fungsional, dan interaktif. Berfokus pada performa tinggi, animasi scroll presisi, dan arsitektur komponen bersih.",
     tech: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Laravel"],
-    icon: Code2,
-    angle: 0,
   },
   {
     num: "02",
     name: "AI Integration",
-    tagline: "Intelligent Workflows & Autonomous Agents",
     description:
       "Menghubungkan model kecerdasan buatan ke alur kerja produk nyata. Membangun agent mandiri yang memangkas proses manual rumit menjadi hitungan detik.",
     tech: ["Gemini API", "Groq LPU", "Hermes Agent", "Workflow Automation", "NLP"],
-    icon: Cpu,
-    angle: 72,
   },
   {
     num: "03",
     name: "Data & Architecture",
-    tagline: "Scalable Persistence & Secure Schemas",
     description:
       "Mengintegrasikan penyimpanan data terstruktur, autentikasi aman, dan alur API yang tangguh untuk menopang stabilitas dan pertumbuhan fitur produk.",
     tech: ["Supabase", "PostgreSQL", "MariaDB", "RESTful API", "Prisma"],
-    icon: Globe2,
-    angle: 144,
   },
   {
     num: "04",
     name: "Problem Solving",
-    tagline: "Root-Cause Analysis & Systems Thinking",
     description:
       "Bukan sekadar menulis baris kode, tapi membedah akar masalah bisnis dan mengeksekusi solusi teknis yang tepat sasaran, teruji, dan terdokumentasi.",
     tech: ["System Architecture", "Systematic Debugging", "Code Review", "SOP Governance"],
-    icon: Sparkles,
-    angle: 216,
   },
   {
     num: "05",
     name: "Continuous Learning",
-    tagline: "Learning by Building & Iteration",
     description:
       "Memvalidasi konsep lewat pembuatan prototipe nyata secara cepat. Selalu penasaran, mengeksplorasi teknologi baru, dan siap berkolaborasi dalam tim.",
     tech: ["Rapid Prototyping", "A/B Experiments", "Open Source", "Clean Architecture"],
-    icon: ArrowUpRight,
-    angle: 288,
   },
 ] as const;
 
@@ -160,11 +143,13 @@ function FadeIn({
   delay = 0,
   y = 30,
   className = "",
+  once = true,
 }: {
   children: ReactNode;
   delay?: number;
   y?: number;
   className?: string;
+  once?: boolean;
 }) {
   const reduced = useReducedMotion();
   return (
@@ -172,7 +157,7 @@ function FadeIn({
       className={className}
       initial={reduced ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.08 }}
+      viewport={{ once, amount: 0.08 }}
       transition={{ duration: 0.7, delay, ease: [0.25, 0.1, 0.25, 1] }}
     >
       {children}
@@ -511,7 +496,6 @@ function About() {
         ✳
       </span>
       <FadeIn>
-        <span className="eyebrow">01 / THE PERSON BEHIND THE PIXELS</span>
         <h2 className="section-heading hero-heading">ABOUT ME</h2>
       </FadeIn>
       <FadeIn className="about-theater-wrap">
@@ -540,117 +524,103 @@ function About() {
 }
 function Skills() {
   const trackRef = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: trackRef,
-    offset: ["start start", "end end"],
-  });
-
   const [activeIndex, setActiveIndex] = useState(0);
-  const [progressVal, setProgressVal] = useState(0);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
-    return scrollYProgress.on("change", (latest) => {
-      setProgressVal(latest);
-      // Map 0.0 - 1.0 to 5 skills (each 20%)
-      const idx = Math.min(4, Math.floor(latest * 5));
-      setActiveIndex((prev) => {
-        if (prev !== idx && typeof navigator !== "undefined" && navigator.vibrate) {
-          navigator.vibrate(10);
-        }
-        return idx;
+    if (reduced) return;
+
+    let frame = 0;
+    const updateActiveSkill = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const track = trackRef.current;
+        if (!track) return;
+
+        const scrollDistance = Math.max(
+          track.offsetHeight - window.innerHeight,
+          1,
+        );
+        const progress = Math.min(
+          1,
+          Math.max(0, -track.getBoundingClientRect().top / scrollDistance),
+        );
+        const nextIndex = Math.min(
+          skills.length - 1,
+          Math.floor(progress * skills.length),
+        );
+        setActiveIndex((current) =>
+          current === nextIndex ? current : nextIndex,
+        );
       });
-    });
-  }, [scrollYProgress]);
+    };
 
-  const handleSelectSkill = (idx: number) => {
-    if (!trackRef.current) return;
-    const maxScroll = trackRef.current.offsetHeight - window.innerHeight;
-    const targetScroll =
-      trackRef.current.offsetTop + (idx / 5 + 0.1) * maxScroll;
-    window.scrollTo({
-      top: targetScroll,
-      behavior: "smooth",
-    });
-    setActiveIndex(idx);
-    if (typeof navigator !== "undefined" && navigator.vibrate) {
-      navigator.vibrate(12);
-    }
-  };
+    window.addEventListener("scroll", updateActiveSkill, { passive: true });
+    window.addEventListener("resize", updateActiveSkill);
+    updateActiveSkill();
 
-  const activeSkill = skills[activeIndex];
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateActiveSkill);
+      window.removeEventListener("resize", updateActiveSkill);
+    };
+  }, [reduced]);
 
   return (
     <div ref={trackRef} className="skills-scroll-track">
-      <section ref={sectionRef} className="skills" id="skills">
-        {/* Ambient background light */}
-        <div className="skills-ambient-glow" aria-hidden="true" />
-
-        <div className="skills-header">
-          <div className="section-meta">
-            <span className="eyebrow">02 / WHAT I BRING</span>
-            <span className="skills-meta-mode">ROTARY HARDWARE SELECTOR</span>
-          </div>
-          <h2 className="section-heading">MY TOOLKIT</h2>
-        </div>
-
-        <div className="skills-interactive-grid">
-          {/* Sisi Kiri: Deskripsi Skill Aktif & Badges */}
-          <div className="skills-info-col">
-            <div className="skill-active-card">
-              <div className="skill-card-top">
-                <span className="skill-large-num">{activeSkill.num}</span>
-                <div className="skill-icon-bubble">
-                  <activeSkill.icon size={26} />
-                </div>
-              </div>
-
-              <div className="skill-card-content">
-                <span className="skill-tagline">{activeSkill.tagline}</span>
-                <h3 className="skill-title">{activeSkill.name}</h3>
-                <p className="skill-desc">{activeSkill.description}</p>
-              </div>
-
-              <div className="skill-tech-pills">
-                <span className="tech-pills-label">TECH STACK / TOOLS:</span>
-                <div className="tech-pills-wrap">
-                  {activeSkill.tech.map((t) => (
-                    <span key={t} className="tech-pill">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Selector Tabs */}
-            <div className="skills-selector-tabs" role="tablist">
-              {skills.map((s, idx) => (
-                <button
-                  key={s.num}
-                  role="tab"
-                  aria-selected={idx === activeIndex}
-                  className={`skill-tab-btn ${idx === activeIndex ? "is-active" : ""}`}
-                  onClick={() => handleSelectSkill(idx)}
-                >
-                  <span className="tab-num">{s.num}</span>
-                  <span className="tab-name">{s.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Sisi Kanan: Roda Piringan 3D Isometrik */}
-          <div className="skills-dial-col">
-            <RotaryDial3D
-              progress={progressVal}
-              activeIndex={activeIndex}
-              onSelectIndex={handleSelectSkill}
-            />
+      <section className="skills" id="skills">
+        <div className="skills-story-shell">
+          <header className="skills-story-header">
+            <h2>MY TOOLKIT</h2>
+          </header>
+          <div className="skills-story-stage">
+            {reduced ? (
+              skills.map((skill) => (
+                <SkillStorySlide key={skill.num} skill={skill} reduced />
+              ))
+            ) : (
+              <AnimatePresence initial={false} mode="sync">
+                <SkillStorySlide
+                  key={skills[activeIndex].num}
+                  skill={skills[activeIndex]}
+                />
+              </AnimatePresence>
+            )}
           </div>
         </div>
       </section>
     </div>
+  );
+}
+function SkillStorySlide({
+  skill,
+  reduced = false,
+}: {
+  skill: (typeof skills)[number];
+  reduced?: boolean;
+}) {
+  const content = (
+    <>
+      <h3 className="skill-story-name">{skill.name}</h3>
+      <p className="skill-story-statement">{skill.description}</p>
+      <p className="skill-story-tech">{skill.tech.join(" / ")}</p>
+    </>
+  );
+
+  if (reduced) {
+    return <article className="skill-story-slide">{content}</article>;
+  }
+
+  return (
+    <motion.article
+      className="skill-story-slide"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -24 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {content}
+    </motion.article>
   );
 }
 function ProjectCard({
@@ -775,18 +745,38 @@ function ProjectCard({
   );
 }
 function Projects() {
+  const sectionRef = useRef<HTMLElement>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress: entranceProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "start 18%"],
+  });
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end end"],
   });
+  const panelScale = useTransform(entranceProgress, [0, 1], [0.92, 1]);
+  const panelY = useTransform(entranceProgress, [0, 1], [42, 0]);
+  const panelOpacity = useTransform(entranceProgress, [0, 1], [0.8, 1]);
+  const headingOpacity = useTransform(entranceProgress, [0, 0.78, 0.84, 1], [0, 0, 1, 1]);
+  const headingY = useTransform(entranceProgress, [0, 0.78, 0.84, 1], [28, 28, 0, 0]);
+
   return (
-    <section className="projects section-pad" id="projects">
-      <FadeIn>
-        <div className="section-meta">
-          <span className="eyebrow">03 / SELECTED WORK</span>
-          <span>FOUR IDEAS. DIFFERENT POSSIBILITIES.</span>
-        </div>
+    <section ref={sectionRef} className="projects section-pad" id="projects">
+      <motion.div
+        className="projects-reveal-bg"
+        aria-hidden="true"
+        style={
+          reduced
+            ? undefined
+            : { scaleY: panelScale, y: panelY, opacity: panelOpacity }
+        }
+      />
+      <motion.div
+        className="projects-header"
+        style={reduced ? undefined : { opacity: headingOpacity, y: headingY }}
+      >
         <h2 className="section-heading hero-heading">
           PROJECTS<span className="project-count">(04)</span>
         </h2>
@@ -798,7 +788,7 @@ function Projects() {
             ringkasan pengembangan.
           </span>
         </p>
-      </FadeIn>
+      </motion.div>
       <div className="project-stack" ref={ref}>
         {projects.map((p, i) => (
           <ProjectCard
@@ -816,9 +806,6 @@ function Contact() {
   return (
     <footer id="contact" className="contact section-pad">
       <FadeIn>
-        <span className="availability">
-          <i /> OPEN TO INTERNSHIP & COLLABORATION
-        </span>
         <h2>
           HAVE SOMETHING
           <br />
