@@ -541,16 +541,77 @@ a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
   color: #716875;
 }
 .skills-story-header h2 {
   margin: 0;
   color: inherit;
-  font-size: 11px;
+  font-size: clamp(13px, 1.2vw, 15px);
   font-weight: 600;
-  letter-spacing: 1.6px;
+  letter-spacing: 1.3px;
   line-height: 1;
   text-transform: uppercase;
+}
+.skills-story-indicator {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+}
+.skills-story-count {
+  color: #716875;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.skills-story-progress {
+  width: clamp(82px, 11vw, 138px);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  gap: 4px;
+}
+.skills-story-progress-segment {
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(23, 22, 21, 0.16);
+  transition: background-color 0.25s ease;
+}
+.skills-story-progress-segment.is-complete {
+  background: rgba(23, 22, 21, 0.48);
+}
+.skills-story-progress-segment.is-active {
+  background: #171615;
+}
+.skills-story-static-count {
+  color: #716875;
+  font-size: 12px;
+  font-weight: 500;
+}
+.skills-story-footer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: clamp(12px, 2svh, 18px) 0 2px;
+  color: #716875;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.skills-story-next {
+  min-width: 0;
+}
+.skills-story-scroll-cue {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  color: #716875;
+  white-space: nowrap;
 }
 .skills-story-stage {
   position: relative;
@@ -572,9 +633,9 @@ a:focus-visible {
 .skill-story-name {
   margin: 0 0 clamp(16px, 3svh, 28px);
   color: #716875;
-  font-size: clamp(14px, 1.35vw, 18px);
+  font-size: clamp(18px, 1.7vw, 22px);
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.07em;
   line-height: 1.35;
   text-transform: uppercase;
 }
@@ -611,17 +672,44 @@ a:focus-visible {
     padding: 20px 18px;
     border-radius: 28px 28px 0 0;
   }
+  .skills-story-header {
+    gap: 10px;
+  }
   .skills-story-header h2 {
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .skills-story-indicator {
+    gap: 8px;
+  }
+  .skills-story-count {
+    font-size: 10px;
+  }
+  .skills-story-progress {
+    width: 76px;
+    gap: 3px;
+  }
+  .skills-story-progress-segment {
+    height: 2px;
+  }
+  .skills-story-static-count {
+    font-size: 10px;
+  }
+  .skills-story-footer {
+    gap: 8px;
+    padding-top: 10px;
+    font-size: 10px;
+  }
+  .skills-story-scroll-cue {
     font-size: 9px;
-    letter-spacing: 1.2px;
   }
   .skill-story-slide {
     padding: 0 4px;
   }
   .skill-story-name {
     margin-bottom: 18px;
-    font-size: 12px;
-    letter-spacing: 0.08em;
+    font-size: 15px;
+    letter-spacing: 0.06em;
   }
   .skill-story-statement {
     font-size: clamp(24px, 6.3vw, 31px);

@@ -526,6 +526,8 @@ function Skills() {
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const reduced = useReducedMotion();
+  const activeSkill = skills[activeIndex];
+  const nextSkill = skills[activeIndex + 1];
 
   useEffect(() => {
     if (reduced) return;
@@ -572,6 +574,38 @@ function Skills() {
         <div className="skills-story-shell">
           <header className="skills-story-header">
             <h2>MY TOOLKIT</h2>
+            {reduced ? (
+              <span className="skills-story-static-count">5 skill areas</span>
+            ) : (
+              <div className="skills-story-indicator">
+                <span
+                  className="skills-story-count"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {activeSkill.num} / {String(skills.length).padStart(2, "0")}
+                </span>
+                <div
+                  className="skills-story-progress"
+                  role="progressbar"
+                  aria-label="My Toolkit progress"
+                  aria-valuemin={1}
+                  aria-valuemax={skills.length}
+                  aria-valuenow={activeIndex + 1}
+                  aria-valuetext={`${activeIndex + 1} of ${skills.length}: ${activeSkill.name}`}
+                >
+                  {skills.map((skill, index) => (
+                    <span
+                      key={skill.num}
+                      className={`skills-story-progress-segment${
+                        index < activeIndex ? " is-complete" : ""
+                      }${index === activeIndex ? " is-active" : ""}`}
+                      aria-hidden="true"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </header>
           <div className="skills-story-stage">
             {reduced ? (
@@ -587,6 +621,16 @@ function Skills() {
               </AnimatePresence>
             )}
           </div>
+          {!reduced && (
+            <footer className="skills-story-footer">
+              <span className="skills-story-next">
+                Berikutnya: {nextSkill?.name ?? "Projects"}
+              </span>
+              <span className="skills-story-scroll-cue">
+                Gulir untuk lanjut <ArrowDown size={13} aria-hidden="true" />
+              </span>
+            </footer>
+          )}
         </div>
       </section>
     </div>
